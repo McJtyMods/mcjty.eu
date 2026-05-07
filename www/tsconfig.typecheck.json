@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@site/*": ["./*"]
+    }
+  },
+  "include": [
+    "docusaurus.config.ts",
+    "sidebars.ts",
+    "tailwind.config.ts",
+    "src/**/*"
+  ],
+  "exclude": ["build", "node_modules"]
+}

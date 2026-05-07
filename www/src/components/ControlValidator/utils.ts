@@ -1,6 +1,6 @@
-import type { ZodIssue } from "zod";
+import type * as z from "zod";
 
-export function formatErrorLine(item: ZodIssue) {
+export function formatErrorLine(item: z.core.$ZodIssue) {
   console.log(item);
 
   // TODO: check this doesn't break anything
@@ -13,9 +13,9 @@ export function formatErrorLine(item: ZodIssue) {
       "Rule " +
       (parseInt(item.path[0].toString(), 10) + 1) +
       ": Expected " +
-      item.path[2] +
+      String(item.path[2]) +
       " in " +
-      item.path[1]
+      String(item.path[1])
     );
   }
 
@@ -24,7 +24,7 @@ export function formatErrorLine(item: ZodIssue) {
       "Rule " +
       (parseInt(item.path[0].toString(), 10) + 1) +
       ": Expected " +
-      item.path[1] +
+      String(item.path[1]) +
       " with values " +
       // @ts-expect-error
       item.expected

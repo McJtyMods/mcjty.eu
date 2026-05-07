@@ -2,14 +2,17 @@ import type { Options, ThemeConfig } from "@docusaurus/preset-classic";
 import type { Config } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 
+const repositoryUrl = "https://github.com/McJtyMods/mcjty.eu";
+const siteDirectoryUrl = `${repositoryUrl}/tree/main/www/`;
+
 const metadata = {
   title: "Mcjty",
   tagline: "Maker of RFTools, McJtyLib, Deep Resonance, and Gear Swapper.",
   description:
     "Mod developer. Maker of RFTools, McJtyLib, Deep Resonance, and Gear Swapper mods. Creator of the On The Edge hardcore/tech modpack. ForgeCraft member",
-  image: "/img/logo.png",
   tags: "Minecrafter, Mod Developer, Mods, Minecraft Mods, Modder, Developer, Modpacks, Modpack Developer, RFTools, McJty, Mc Jty, RFTools Dimensions, RFTools Control, XNet, Interaction Wheel, Gear Swapper, Immersive Craft, Aqua Munda, McJtyLib, CompatLayer, In Control!, The One Probe, Deep Resonance, xNICEx, CombatHelp, Elemental Dimensions, On The Edge, McJty's Lets Play Pack, Forge, NeoForge, Curseforge",
   url: "https://mcjty.eu",
+  image: "https://mcjty.eu/img/logo.png",
   color: "#36B99F",
 };
 
@@ -17,11 +20,10 @@ export default {
   title: metadata.title,
   tagline: metadata.tagline,
   url: metadata.url,
-  baseUrl: process.env.BASE_URL || "/",
-  organizationName: "tomheaton",
-  projectName: "mcjty-website",
-  // Vercel needs undefined to allow anchor tags to work correctly
-  trailingSlash: process.env.BASE_URL ? false : undefined,
+  baseUrl: "/",
+  organizationName: "McJtyMods",
+  projectName: "mcjty.eu",
+  trailingSlash: false,
   onBrokenLinks: "warn",
   markdown: {
     hooks: {
@@ -109,13 +111,13 @@ export default {
       {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
-          editUrl: "https://github.com/tomheaton/mcjty-website/tree/main/",
+          editUrl: siteDirectoryUrl,
         },
-        blog: false /*{
-          showReadingTime: true,
-          editUrl:
-            "https://github.com/tomheaton/mcjty-website/tree/main/"",
-        },*/,
+        blog: false,
+        // blog: {
+        //   showReadingTime: true,
+        //   editUrl: "https://github.com/tomheaton/mcjty-website/tree/main/",
+        // },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
@@ -285,7 +287,7 @@ export default {
             // },
             {
               label: "Source Code",
-              href: "https://github.com/tomheaton/mcjty-website",
+              href: repositoryUrl,
             },
           ],
         },

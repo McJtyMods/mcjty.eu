@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "@mcjty-website/redirector",
-  "repository": "https://github.com/tomheaton/mcjty-website",
+  "repository": "https://github.com/McJtyMods/mcjty.eu",
   "license": "MIT",
   "author": "tomheaton",
   "scripts": {

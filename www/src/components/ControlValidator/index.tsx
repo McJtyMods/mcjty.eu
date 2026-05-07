@@ -5,7 +5,7 @@ import {
 } from "@site/src/components/ControlValidator/data";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
-import type z from "zod";
+import type * as z from "zod";
 import Validator from "./Validator";
 
 type Props = {
