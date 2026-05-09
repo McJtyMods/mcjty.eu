@@ -1,11 +1,7 @@
 {
+  // Shared compiler options live in tsconfig.json.
+  // This file only scopes the standalone tsc typecheck.
   "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@site/*": ["./*"]
-    }
-  },
   "include": [
     "docusaurus.config.ts",
     "sidebars.ts",

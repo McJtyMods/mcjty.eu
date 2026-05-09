@@ -18,9 +18,12 @@ export type MinecraftVersion = (typeof MINECRAFT_VERSIONS)[number];
 export const VALIDATOR_TYPES = ["spawn", "spawner", "phases"] as const;
 export type ValidatorType = (typeof VALIDATOR_TYPES)[number];
 
-type DataType = Partial<
-  Record<MinecraftVersion, Partial<Record<ValidatorType, z.ZodSchema<any>>>>
+type ValidatorSchema = z.ZodSchema<unknown>;
+type DataType = Record<
+  MinecraftVersion,
+  Record<ValidatorType, ValidatorSchema>
 >;
+
 export const DATA: DataType = {
   "1.16.5": {
     spawn: spawnSchema1_19,

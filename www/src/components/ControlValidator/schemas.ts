@@ -353,8 +353,16 @@ export const generalSpawnKeywords = z.object({
     .refine((v) => v === undefined, "'conditions' only works for spawner.json"),
 });
 
-function spawnRefinement(o: any) {
-  return o
+type SpawnRefinementValue = {
+  result: "default" | "allow" | "deny";
+  mincount?: number | z.infer<typeof counter>;
+  maxcount?: number | z.infer<typeof counter>;
+  minlight?: number;
+  maxlight?: number;
+};
+
+function spawnRefinement<T extends z.ZodType<SpawnRefinementValue>>(schema: T) {
+  return schema
     .refine(
       (v) => !((v.result === "allow" || v.result === "default") && v.mincount),
       "Warning: result=allow and mincount are probably not what you want",

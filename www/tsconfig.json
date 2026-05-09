@@ -3,6 +3,11 @@
   // It is here just for a nice editor experience.
   "extends": "@docusaurus/tsconfig",
   "compilerOptions": {
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "paths": {
+      "@site/*": ["./*"]
+    },
     "verbatimModuleSyntax": true
   }
 }

@@ -2,5 +2,6 @@ packages:
   - redirector
   - www
 overrides:
+  postcss@<8.5.10: '>=8.5.10'
   serialize-javascript@<7.0.5: '>=7.0.5'
   serialize-javascript@<=7.0.2: '>=7.0.3'

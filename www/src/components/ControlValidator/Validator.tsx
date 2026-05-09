@@ -1,7 +1,7 @@
-import JSONParser from "@site/src/components/ControlValidator/jsonParser";
-import { formatErrorLine } from "@site/src/components/ControlValidator/utils";
-import { type FormEvent, useState } from "react";
+import { type ChangeEvent, type FormEvent, useState } from "react";
 import { DATA, type MinecraftVersion, type ValidatorType } from "./data";
+import JSONParser from "./jsonParser";
+import { formatErrorLine } from "./utils";
 
 type Props = {
   type: ValidatorType;
@@ -10,16 +10,24 @@ type Props = {
   setText: (text: string) => void;
 };
 
+type ValidationMessage = {
+  key: string;
+  message: string;
+  color: string;
+};
+
 // TODO: add syntax highlighting
 const Validator: React.FC<Props> = (props) => {
   const schema = DATA[props.version][props.type];
 
   const [parseError, setParseError] = useState<string>("");
-  const [zodErrors, setZodErrors] = useState<
-    { message: string; color: string }[]
-  >([]);
-  const [success, setSuccess] = useState<boolean>(null);
+  const [zodErrors, setZodErrors] = useState<ValidationMessage[]>([]);
+  const [success, setSuccess] = useState<boolean>(false);
   const [validating, setValidating] = useState<boolean>(false);
+
+  const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    props.setText(event.target.value);
+  };
 
   const handleValidation = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,10 +49,14 @@ const Validator: React.FC<Props> = (props) => {
       if (result.success === false) {
         console.log("Invalid: Zod Error!");
 
-        const output = result.error.issues.map((error) => ({
-          message: formatErrorLine(error),
-          color: error.message.startsWith("Warning:") ? "orange" : "red",
-        }));
+        const output = result.error.issues.map((error) => {
+          const path = error.path.map(String).join(".");
+          return {
+            key: `${error.code}:${path}:${error.message}`,
+            message: formatErrorLine(error),
+            color: error.message.startsWith("Warning:") ? "orange" : "red",
+          };
+        });
 
         console.log(output);
 
@@ -56,10 +68,12 @@ const Validator: React.FC<Props> = (props) => {
 
         setSuccess(true);
       }
-    } catch (e) {
+    } catch (error) {
       console.log("Invalid: Parse Error!");
 
-      setParseError(e.message);
+      setParseError(
+        error instanceof Error ? error.message : "Unknown parse error",
+      );
     }
 
     setValidating(false);
@@ -74,7 +88,7 @@ const Validator: React.FC<Props> = (props) => {
       <div className="w-full">
         <textarea
           value={props.text}
-          onChange={(e) => props.setText(e.target.value)}
+          onChange={handleTextChange}
           placeholder={`Enter ${props.type} schema for ${props.version} here...`}
           required
           className="h-[400px] w-full rounded p-2 font-mono"
@@ -96,8 +110,8 @@ const Validator: React.FC<Props> = (props) => {
         )}
         {zodErrors.length > 0 && (
           <pre className="w-full whitespace-pre-wrap">
-            {zodErrors.map((error, index) => (
-              <span key={index} style={{ color: error.color }}>
+            {zodErrors.map((error) => (
+              <span key={error.key} style={{ color: error.color }}>
                 {error.message}
                 {"\n"}
               </span>

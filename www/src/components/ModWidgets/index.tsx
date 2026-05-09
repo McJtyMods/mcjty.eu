@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import styles from "./styles.module.css";
 
+type CurseForgeProject = {
+  id?: number | null;
+};
+
+type CurseForgeAuthorResponse = {
+  projects?: Array<CurseForgeProject | null>;
+};
+
 const ModWidget: React.FC<{ id: number }> = ({ id }) => {
   // TODO: fix mobile styling
   return (
@@ -18,9 +26,20 @@ const ModWidgets: React.FC = () => {
   const [mods, setMods] = useState<number[]>([]);
 
   useEffect(() => {
-    fetch("https://api.cfwidget.com/author/search/mcjty")
-      .then((res) => res.json())
-      .then((data) => setMods(data.projects?.map((m) => m?.id)));
+    const loadMods = async () => {
+      const response = await fetch(
+        "https://api.cfwidget.com/author/search/mcjty",
+      );
+      const data: CurseForgeAuthorResponse = await response.json();
+      const projectIds =
+        data.projects
+          ?.map((project) => project?.id)
+          .filter((id): id is number => typeof id === "number") ?? [];
+
+      setMods(projectIds);
+    };
+
+    void loadMods();
   }, []);
 
   return (
