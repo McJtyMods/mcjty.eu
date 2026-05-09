@@ -1,32 +1,18 @@
 {
   "name": "@mcjty-website/redirector",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "description": "@mcjty-website/redirector",
   "repository": "https://github.com/McJtyMods/mcjty.eu",
   "license": "MIT",
   "author": "tomheaton",
   "scripts": {
-    "build": "next build",
-    "clean": "rm -rf node_modules .next",
-    "dev": "next dev",
-    "start": "next start",
-    "typecheck": "tsc"
-  },
-  "dependencies": {
-    "next": "16.2.3",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "clean": "rm -rf node_modules .wrangler",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "start": "wrangler dev"
   },
   "devDependencies": {
-    "@types/node": "24.12.2",
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3",
-    "typescript": "5.9.3"
-  },
-  "packageManager": "pnpm@10.33.0",
-  "engines": {
-    "node": ">= 24"
-  },
-  "engineStrict": true
+    "wrangler": "^4.90.0"
+  }
 }

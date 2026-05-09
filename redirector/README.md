@@ -2,7 +2,7 @@
 
 This is the redirector for the McJty website, which is used to redirect requests from the old wiki links to the new website.
 
-This website is built using [Next.js](https://nextjs.org/), a React framework for building server-side rendered applications.
+This website is built using Cloudflare Pages, which is a static site hosting service. The redirector is implemented using Cloudflare Workers, which are serverless functions that run on Cloudflare's edge network.
 
 ## Installation
 
@@ -17,24 +17,18 @@ pnpm install
 To start a local development server:
 
 ```shell
-pnpm dev
+pnpm wrangler pages dev public
 ```
 
 This command starts a local development server and opens up a browser window.
 Most changes are reflected live without having to restart the server.
 
-## Build and Start
+## Deployment
 
-To build the website:
-
-```shell
-pnpm build
-```
-
-Then to start the website:
+To deploy the redirector to Cloudflare Pages:
 
 ```shell
-pnpm start
+pnpm wrangler pages publish public
 ```
 
 ## Notes
