@@ -28,7 +28,7 @@ Most changes are reflected live without having to restart the server.
 To deploy the redirector to Cloudflare Pages:
 
 ```shell
-pnpm wrangler pages publish public
+pnpm wrangler pages deploy public
 ```
 
 ## Notes

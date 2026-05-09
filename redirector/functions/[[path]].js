@@ -1,4 +1,4 @@
-const REDIRECT_STATUS = 302;
+const REDIRECT_STATUS = 301;
 
 const MODDING_REDIRECTS = {
   "YouTube-Tutorials-12": "https://mcjty.eu/docs/1.12/",
