@@ -49,17 +49,6 @@ const Home: React.FC = () => {
         <ModWidgets />
         <div className={styles.infoBox}>
           <p className={styles.text} style={{ textAlign: "center" }}>
-            Want to support what I do?
-          </p>
-          <Link href="https://www.patreon.com/McJty">
-            <img
-              src={require("@site/static/img/patreon.png").default}
-              alt="McJty Patreon badge"
-            />
-          </Link>
-        </div>
-        <div className={styles.infoBox}>
-          <p className={styles.text} style={{ textAlign: "center" }}>
             Did you know McJty&apos;s son makes mods too?
           </p>
           <Link
