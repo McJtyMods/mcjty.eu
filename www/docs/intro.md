@@ -9,12 +9,6 @@ sidebar_position: 0
 This wiki is all about making your own mods for Minecraft with Forge.
 This wiki was started by McJty ([Twitter](https://twitter.com/McJty))
 
-## Supporting McJty
-
-- If you want to support McJty and his tutorials and mods then there is a [Patreon](https://patreon.com/McJty)
-- Direct donations to PayPal are also possible (`jorrit.tyberghein@pandora.be`)
-- Thanks!
-
 ## Tutorials
 
 ### Modding Tutorials
