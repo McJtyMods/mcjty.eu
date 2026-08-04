@@ -176,11 +176,6 @@ export default {
           label: "Control Validator",
           position: "left",
         },
-        {
-          sidebarId: "apps",
-          position: "left",
-          label: "Apps",
-        },
         /*{
             to: "/blog",
             label: "Blog",
