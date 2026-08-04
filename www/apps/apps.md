@@ -9,4 +9,4 @@ Minecraft.
 
 ## Android
 
-* [Balls In Box](./balls-in-box.md)
+* [Balls In Box](balls-in-box.md)
