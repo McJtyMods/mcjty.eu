@@ -48,6 +48,16 @@ export default {
       };
     },
     "vercel-analytics",
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "apps",
+        path: "apps",
+        routeBasePath: "apps",
+        sidebarPath: "./sidebars-apps.ts",
+        editUrl: siteDirectoryUrl,
+      },
+    ],
   ],
   headTags: [
     {
