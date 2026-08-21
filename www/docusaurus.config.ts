@@ -31,6 +31,13 @@ export default {
     },
   },
   favicon: "img/favicon.ico",
+  scripts: [
+    {
+      src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9080440722215949",
+      async: true,
+      crossorigin: "anonymous",
+    },
+  ],
   i18n: {
     defaultLocale: "en",
     locales: ["en"],
