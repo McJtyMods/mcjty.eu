@@ -20,10 +20,12 @@
       "test": "recommended",
       "project": "recommended",
       "react": "recommended",
-      "next": "recommended"
+      "next": "recommended",
+      "types": "recommended",
+      "tailwind": "recommended"
     },
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "a11y": {
         "useKeyWithClickEvents": "warn",
         "noLabelWithoutControl": "warn",
