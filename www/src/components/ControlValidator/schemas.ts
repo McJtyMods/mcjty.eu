@@ -214,9 +214,7 @@ const blockSchema = z
   .or(z.string());
 
 export const generalSpawnKeywords = z.object({
-  result: z.optional(
-    z.enum(["default", "allow", "deny", "deny_with_actions"]),
-  ),
+  result: z.optional(z.enum(["default", "allow", "deny", "deny_with_actions"])),
   continue: z.optional(z.boolean()),
   phase: z.optional(stringOrStrings),
   number: z.optional(numberCondition.or(z.array(numberCondition))),
@@ -585,7 +583,8 @@ export const spawnerSchema = z.array(
       "Specify either 'mob' or 'mobsfrombiome'",
     )
     .refine(
-      (value) => !(value.mob !== undefined && value.mobsfrombiome !== undefined),
+      (value) =>
+        !(value.mob !== undefined && value.mobsfrombiome !== undefined),
       "'mob' and 'mobsfrombiome' cannot be combined",
     ),
 );

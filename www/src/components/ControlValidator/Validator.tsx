@@ -17,7 +17,8 @@ type ValidationMessage = {
 };
 
 function describeParseError(error: unknown, text: string) {
-  const message = error instanceof Error ? error.message : "Unknown parse error";
+  const message =
+    error instanceof Error ? error.message : "Unknown parse error";
   const match = message.match(/position (\d+)/);
   if (match === null) {
     return message;

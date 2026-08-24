@@ -1,31 +1,24 @@
 import {
   DATA,
   type MinecraftVersion,
+  VALIDATOR_TYPES,
   type ValidatorType,
 } from "@site/src/components/ControlValidator/data";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
-import type * as z from "zod";
 import Validator from "./Validator";
 
-type Props = {
-  schema?: z.ZodSchema<any>;
-};
+const initialText = Object.fromEntries(
+  VALIDATOR_TYPES.map((type) => [type, ""]),
+) as Record<ValidatorType, string>;
 
-const ControlValidator: React.FC<Props> = () => {
+const ControlValidator: React.FC = () => {
   const [version, setVersion] = useState<MinecraftVersion>("1.20.1");
   const [tab, setTab] = useState<ValidatorType | null>(
     // TODO: clean this mess up
     Object.keys(DATA[version]).map((v) => v as ValidatorType)[0],
   );
-  const [text, setText] = useState<{
-    [key in ValidatorType]: string;
-  }>(
-    Object.keys(DATA[version]).reduce((acc, cur) => {
-      acc[cur as ValidatorType] = "";
-      return acc;
-    }, {} as any),
-  );
+  const [text, setText] = useState<Record<ValidatorType, string>>(initialText);
 
   useEffect(() => {
     if (Object.keys(DATA[version]).length === 0) {
@@ -53,9 +46,16 @@ const ControlValidator: React.FC<Props> = () => {
             </option>
           ))}
         </select>
-        <ul className="tabs tabs--block w-full">
+        <div
+          className="tabs tabs--block w-full"
+          role="tablist"
+          aria-label="Rule file"
+        >
           {Object.keys(DATA[version]).map((validator) => (
-            <li
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === validator}
               key={validator}
               className={clsx(
                 "tabs__item",
@@ -64,9 +64,9 @@ const ControlValidator: React.FC<Props> = () => {
               onClick={() => setTab(validator as ValidatorType)}
             >
               {validator}.json
-            </li>
+            </button>
           ))}
-        </ul>
+        </div>
       </div>
       <br />
       <div className="mx-auto md:w-2/3">
