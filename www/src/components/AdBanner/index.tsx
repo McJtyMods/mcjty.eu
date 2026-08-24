@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./styles.module.css";
 
 const ADSENSE_CLIENT = "ca-pub-9080440722215949";
@@ -12,8 +12,31 @@ type AdBannerProps = {
 };
 
 const AdBanner: React.FC<AdBannerProps> = ({ slot }) => {
+  const adElement = useRef<HTMLModElement>(null);
   const initialized = useRef(false);
+  const [isUnfilled, setIsUnfilled] = useState(false);
   const isConfigured = /^\d+$/.test(slot);
+
+  useEffect(() => {
+    if (!isConfigured || !adElement.current) {
+      return;
+    }
+
+    const element = adElement.current;
+    const updateStatus = () => {
+      const status = element.dataset.adStatus;
+      setIsUnfilled(status === "unfilled" || status === "unfill-optimized");
+    };
+    const observer = new MutationObserver(updateStatus);
+
+    observer.observe(element, {
+      attributes: true,
+      attributeFilter: ["data-ad-status"],
+    });
+    updateStatus();
+
+    return () => observer.disconnect();
+  }, [isConfigured]);
 
   useEffect(() => {
     if (!isConfigured || initialized.current) {
@@ -37,8 +60,13 @@ const AdBanner: React.FC<AdBannerProps> = ({ slot }) => {
   }
 
   return (
-    <aside className={styles.banner} aria-label="Advertisement">
+    <aside
+      className={styles.banner}
+      aria-label="Advertisement"
+      hidden={isUnfilled}
+    >
       <ins
+        ref={adElement}
         className="adsbygoogle"
         style={{ display: "block" }}
         data-ad-client={ADSENSE_CLIENT}
