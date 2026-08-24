@@ -1,4 +1,11 @@
-# Table of commands (1.20 and 1.21)
+---
+sidebar_position: 8
+title: In Control condition reference
+---
+
+# Condition reference (1.20.1 and newer)
+
+This page is the compact compatibility reference for experienced users. New users should first read [Getting started](./control-mods-20-getting-started.md) and [How rules work](./control-mods-20-concepts.md).
 
 In this section all possible conditions are explained.
 Some conditions are not usable in all rules.
@@ -9,13 +16,16 @@ For block break events this will be the position of the broken block.
 For player effects this is the position of the block on which the player is standing.
 
 Possible types:
-* `S`: a string
-* `B`: a boolean (true/false)
-* `I`: an integer
-* `F`: floating point number
-* `E`: is a string describing a numeric expression (see above for information on those)
-* `[<type>]`: a list of type (for example, `[S]` is a list of strings)
-* `JSON`: a JSON in a specific format explained elsewhere
+
+* `S`: text in double quotes, such as `"minecraft:zombie"`
+* `B`: `true` or `false`
+* `I`: a whole number
+* `F`: a number that can contain a decimal point
+* `E`: a [numeric expression](./control-mods-20.md#numeric-expressions) such as `"gt(10)"`
+* `[<type>]`: a list; for example, `[S]` is a list of text values
+* `JSON`: a nested object whose format is explained in the technical reference
+
+A `V` means that the condition is available for that rule file. Blank cells mean it is not available. Some behavior differs in 1.21 and newer; in particular, use `biometags` instead of `biometype` on 1.21.
 
 :::info
 The table below is very wide.

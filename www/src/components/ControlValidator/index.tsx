@@ -13,7 +13,7 @@ type Props = {
 };
 
 const ControlValidator: React.FC<Props> = () => {
-  const [version, setVersion] = useState<MinecraftVersion>("1.20");
+  const [version, setVersion] = useState<MinecraftVersion>("1.20.1");
   const [tab, setTab] = useState<ValidatorType | null>(
     // TODO: clean this mess up
     Object.keys(DATA[version]).map((v) => v as ValidatorType)[0],
@@ -63,7 +63,7 @@ const ControlValidator: React.FC<Props> = () => {
               )}
               onClick={() => setTab(validator as ValidatorType)}
             >
-              {validator}
+              {validator}.json
             </li>
           ))}
         </ul>

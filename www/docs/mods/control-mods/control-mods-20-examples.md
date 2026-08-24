@@ -1,7 +1,26 @@
-# Examples (1.20 and 1.21)
+---
+sidebar_position: 7
+title: In Control examples library
+---
 
-Sometimes it is best to explain things with examples.
-In this section we will present many examples that you can use as a basis to make your own rules:
+# Examples library (1.20.1 and newer)
+
+This is the complete examples library. If you are new to In Control, begin with the shorter [Common recipes](./control-mods-20-recipes.md) and read [How rules work](./control-mods-20-concepts.md) before copying a multi-file scenario.
+
+## Find an example
+
+| Goal | Examples |
+|---|---|
+| Restrict spawning | [Safe area](#using-areas-for-safe-spawn), [biome allow-list](#spawns-allow-only-in-plains-biome), [mob count limit](#spawn-prevent-too-many-zombies), [height restriction](#spawn-allow-based-on-height) |
+| Modify spawned mobs | [Stronger mobs](#spawn-beefed-up-mobs), [danger after a wither](#making-a-dangerous-world-after-spawning-a-wither) |
+| Add or increase spawning | [Villagers in water](#spawner-spawn-villagers-in-water), [more mobs after day 20](#spawner-increase-hostile-mob-spawns-after-day-20), [more zombies](#getting-zombies-to-spawn-more) |
+| Loot, effects, and interaction | [Loot](#loot-examples), [effects](#effect-examples), [block breaking](#break-events), [right-click rules](#right-click-examples) |
+| Event-driven behavior | [Mob killed](#events-spawn-chickens-when-a-cow-is-killed), [block broken](#events-spawn-wither-skeleton-when-diamond-ore-is-broken), [custom event](#changing-what-a-spawner-spawns) |
+| Complete advanced scenario | [Zombie apocalypse](#scenario-zombie-apocalypse-world) |
+
+:::tip Before testing
+Copy the complete fenced block into the filename shown above it, validate supported files with the [Control Validator](/control-validator), save, and run `/incontrol reload`. Test the same spawn source described by the example; spawn eggs do not exercise an ordinary `position` rule.
+:::
 
 ### Using areas for safe spawn
 
@@ -1137,7 +1156,7 @@ not stop execution of further rules. Which means that at night zombies will get 
 Let's clarify "when" a bit ('onjoin' and 'finalize'). Every zombie that spawns will go through this file at least three times. The first time is called only for
 natural spawning ("when": "position") but we don't use that here. Note that because we use "norestrictions" in spawner.json the zombies that are spawn there will not
 even go through the 'position' setup). The second time is when the zombie is added to the world ("when": "onjoin"). Here is where we do the majority of the work
-checking if the spawn should go through or not. The final time is when the zombie has succesfullly been added to the world. Here we set up equipment and stats.
+checking if the spawn should go through or not. The final time is when the zombie has successfully been added to the world. Here we set up equipment and stats.
 
 ```json title="spawn.json"
 [

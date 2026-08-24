@@ -16,6 +16,21 @@ type ValidationMessage = {
   color: string;
 };
 
+function describeParseError(error: unknown, text: string) {
+  const message = error instanceof Error ? error.message : "Unknown parse error";
+  const match = message.match(/position (\d+)/);
+  if (match === null) {
+    return message;
+  }
+
+  const position = Number.parseInt(match[1], 10);
+  const beforeError = text.slice(0, position);
+  const line = beforeError.split("\n").length;
+  const lastNewline = beforeError.lastIndexOf("\n");
+  const column = position - lastNewline;
+  return `${message} (line ${line}, column ${column})`;
+}
+
 // TODO: add syntax highlighting
 const Validator: React.FC<Props> = (props) => {
   const schema = DATA[props.version][props.type];
@@ -71,9 +86,7 @@ const Validator: React.FC<Props> = (props) => {
     } catch (error) {
       console.log("Invalid: Parse Error!");
 
-      setParseError(
-        error instanceof Error ? error.message : "Unknown parse error",
-      );
+      setParseError(describeParseError(error, props.text));
     }
 
     setValidating(false);
@@ -89,7 +102,7 @@ const Validator: React.FC<Props> = (props) => {
         <textarea
           value={props.text}
           onChange={handleTextChange}
-          placeholder={`Enter ${props.type} schema for ${props.version} here...`}
+          placeholder={`Paste ${props.type}.json for Minecraft ${props.version} here...`}
           required
           className="h-[400px] w-full rounded p-2 font-mono"
         />
@@ -120,7 +133,9 @@ const Validator: React.FC<Props> = (props) => {
         )}
         {success && (
           <pre className="w-full whitespace-pre-wrap">
-            <span style={{ color: "green" }}>Success!</span>
+            <span style={{ color: "green" }}>
+              Valid JSON using the settings known to this validator.
+            </span>
           </pre>
         )}
       </div>

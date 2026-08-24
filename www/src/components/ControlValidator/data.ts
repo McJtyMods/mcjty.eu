@@ -11,7 +11,7 @@ export const MINECRAFT_VERSIONS = [
   "1.16.5",
   "1.18.2",
   "1.19.2",
-  "1.20",
+  "1.20.1",
 ] as const;
 export type MinecraftVersion = (typeof MINECRAFT_VERSIONS)[number];
 
@@ -40,7 +40,7 @@ export const DATA: DataType = {
     spawner: spawnerSchema,
     phases: phasesSchema,
   },
-  "1.20": {
+  "1.20.1": {
     spawn: spawnSchema1_20,
     spawner: spawnerSchema,
     phases: phasesSchema,

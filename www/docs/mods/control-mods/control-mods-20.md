@@ -1,111 +1,70 @@
-# Control Mods New (1.20 and 1.21)
+---
+sidebar_position: 2
+title: In Control 1.20.1+ reference
+---
 
-## Introduction
+# In Control documentation (1.20.1 and newer)
 
-:::info Note
-FxControl no longer exists on 1.20. It's functionality has been merged into InControl
+[In Control](https://www.curseforge.com/minecraft/mc-mods/in-control) uses JSON rule files to control mob spawning, attributes, loot, experience, player effects, block interactions, and event-driven spawns.
+
+:::tip New to In Control?
+Begin with [Getting started](./control-mods-20-getting-started.md). It includes a five-minute working rule and a short JSON guide.
 :::
 
-:::danger Warning
-The 1.21 version is still in testing! There are some limitations and bugs as well as upcoming changes. See below
-for more details.
-:::
+## Choose your path
 
+| If you need… | Go to… |
+|---|---|
+| A first working configuration | [Getting started](./control-mods-20-getting-started.md) |
+| A copyable solution for a common goal | [Common recipes](./control-mods-20-recipes.md) |
+| An explanation of rule order, results, and spawn timing | [How rules work](./control-mods-20-concepts.md) |
+| Help with a rule that does nothing | [Troubleshooting](./control-mods-20-troubleshooting.md) |
+| More complex multi-file examples | [Full examples library](./control-mods-20-examples.md) |
+| Every condition and compatible file | [Condition table](./control-mods-20-table.md) |
+| A syntax check | [Control Validator](/control-validator) |
 
-**YouTube Tutorial for 1.16 and higher:** [YouTube Link](https://youtu.be/JTwi89j4c_w?si=Pc85q2Vz4HED8CYR)
+## Version notes
 
-[In Control](https://minecraft.curseforge.com/projects/in-control) is a mod that supports a rule based system that allows you to control various aspects about mobs.
-There are rule files to control spawning, loot, experience and so on.
+This reference primarily describes the 1.20.1 implementation. The core rule model also applies to newer versions, but integration and Minecraft internals can differ.
 
-Both mods have support for:
-- [Game Stages](https://minecraft.curseforge.com/projects/game-stages)
-- [Serene Seasons](https://minecraft.curseforge.com/projects/serene-seasons)
-- [Baubles](https://minecraft.curseforge.com/projects/baubles)
-- [Lost Cities](../lost-cities/lost-cities.md)
-- [EnigmaScript](../enigma/enigma.md)
+For 1.21:
 
-Because both mods have a very similar structure the documentation for them is merged.
+- `biometype` is no longer available; use `biometags`.
+- GameStage support may depend on the exact In Control build.
+- Minecraft's loot system changed considerably, so verify advanced loot behavior against the installed build.
 
-## Common Questions (FAQ)
+For users migrating from 1.19 or older:
 
-* Q: How can I add spawns using spawn.json?
-    * A: You can't. `spawn.json` can only RESTRICT spawns. To add spawns you use the new `spawner.json`
-    * A: `spawner.json` is used to ADD spawns. `spawn.json` is used to RESTRICT spawns
-    * A: Even removing restrictions from spawning is considered ADDING spawns and can't be done with `spawn.json` alone. Add rules to `spawner.json` and then use `spawn.json` to refine the conditions
-
-* Q: Why can't I seem to control mobs from mod 'X' using `spawn.json`?
-    * A: Occasionally modded mobs don't follow the rules completely. It may help in such situations to use `'when': 'onjoin'` in your rule
-
-* Q: I added a rule to spawn.json to allow a mod but nothing is happening. Why is that?
-    * A: 'Allow' is standard. With `spawn.json` you can only restrict spawns that were already happening. If you want to add more spawns you'll have to add rules to `spawner.json` (possibly refined with rules in `spawn.json`)
-    * A: Having only 'allow' rules in `spawn.json` is (usually) pretty useless as those mobs will spawn anyway (exceptions are if you want to boost mobs). Typically, you want to have 'deny' rules
-
-* Q: I'm trying to deny mobs under certain conditions and allow them under other conditions but it doesn't appear to be working.
-    * A: Keep in mind that order of rules is important. Whenever a mob spawns all rules are evaluated from top to bottom. First rule that matches is executed. For that reason 'allow' rules typically have to be placed BEFORE 'deny' rules 
-
-* Q: I'm trying /summon and spawn eggs but my rules don't seem to work?
-    * A: In Control only affects natural spawns and spawns done by mob spawners. Eggs and /summon is not affected
-    * A: Note that if you use "when": "onjoin" then spawn eggs are affected
-
-* Q: I added a `spawner.json` rule using 'norestrictions'. Now my `spawn.json` rules are not working
-    * A: Using 'norestrictions' prevents position type rules in `spawn.json`. You can either get rid of `norestrictions` or else use "when": "onjoin" in `spawn.json`
-    * A: Note that in `spawn.json` you can also bypass mob specific spawn rules and obstruction checks by using result "allow" instead of "default"
-
-* Q: How can I get zombies to spawn more often?
-    * A: This question is asked so much that it really is considered a FAQ. As I already told you above you can't add spawns using spawn.json alone. You need to add a rule to `spawner.json` and possibly set conditions in `spawn.json`. See the examples at the bottom of this wiki.
-    * A: Check the 'Zombie apocalypse world' scenario in the examples section. It explains how you can setup a zombie apocalypse type world with In Control.
-
-* Q: How can I get zombies to spawn during the day?
-    * A: This is asked a lot but technically this is the wrong question because zombies already spawn during the day. The only restriction is light based and not time based. See the example section for an example on how to spawn zombies unrestricted when it's light
-
-* Q: I set the Minecraft time to a certain day but In Control rules don't seem to notice?
-    * A: In Control uses an internal day counter which is not the same as the Minecraft day. You can use the `/incontrol days` command to see the current day and also to set it 
-
-## Remarks on the 1.21 version
-
-There are currently some limitations and bugs in the 1.21 version. Here are some of the things that are not working or are limited:
-
-* `biometype` no longer exists. This is not going to change. Use `biometags` instead
-* Gamestage support is not enabled yet
-* Looting has changed considerably in 1.21. In Control tries to adapt as much as possible
-
-## Differences between the 1.20 version and older
-
-In 1.20 InControl was changed heavily due to some new spawning events in Forge. In addition FxControl has been removed and
-has been merged into InControl.
-
-The following changes were made:
-
-* There is a new keyword for 'spawn.json' called 'when'. This flag determines when the spawn check will occur. See the documentation later in this wiki.
-* 'special.json' has been removed. It's functionality has been merged into 'spawn.json' by using the new 'when' field with the 'finalize' value
-* The 'onjoin' keyword has been removed. It's functionality has been merged into 'spawn.json' by using the new 'when' field with the 'onjoin' value
-
-An important consequence of this change is how the 'norestrictions' tag works in 'spawner.json'. If you use that flag it will also bypass the
-'position' check (using 'when': 'position') in 'spawn.json'. This is in contrast with 1.19 or older where 'norestrictions' only made sure
-the mob specific restrictions were not tested. If you want the old behaviour (i.e. allowing a spawn and not calling the mob specific restrictions)
-then don't use 'norestrictions' in 'spawner.json' but use 'result': 'allow' in 'spawn.json' instead. Alternatively you can also use 'when': 'onjoin'
-which is still called even with 'norestrictions'.
+- Fx Control was merged into In Control.
+- `special.json` was merged into `spawn.json`; use `"when": "finalize"`.
+- The old `onjoin` field became `"when": "onjoin"`.
+- In 1.20.1, `norestrictions` in `spawner.json` also bypasses `"when": "position"` checks. Use `onjoin` if the related `spawn.json` check must still run.
 
 ## Commands
 
-These mods have various commands that allow you to debug and tweak what is going on:
+| Command | Purpose |
+|---|---|
+| `/incontrol reload` | Reload all rule files after saving changes |
+| `/incontrol debug` | Toggle detailed spawn information in the log; this can produce a lot of output |
+| `/incontrol showmobs` | Write registered entity identifiers to the log |
+| `/incontrol showstats` | Write rule match statistics to the log |
+| `/incontrol clearstats` | Clear collected rule match statistics |
+| `/incontrol kill` | Kill entities selected by category or identifier |
+| `/incontrol list` | List the mobs currently present in the dimension |
+| `/incontrol info` | Show light, time, day, and nearby structure information for the current position |
+| `/incontrol days` | Show or change In Control's internal day counter |
+| `/incontrol phases` | Show active phases |
+| `/incontrol setphase <phase>` | Activate a manually controlled phase |
+| `/incontrol clearphase <phase>` | Clear a manually controlled phase |
+| `/incontrol numbers` | Show stored named numbers |
+| `/incontrol setnumber <name> <value>` | Set a named number |
+| `/incontrol area` | Show the named area at the current position |
 
-* `incontrol reload`: after editing the rule files you can use this command to reload it and reapply the new rules
-* `incontrol debug`: dumps debug info about spawning in the log. Warning! This can produce a lot of output
-* `incontrol show`: show all entities and their names that can be used in spawn.json for mob names
-* `incontrol kill`: kill all entities of a given type. Possible types are: 'all', 'hostile', 'passive', or 'entity'
-* `incontrol list`: list all current mobs present in the current dimension (and how many there are of each type)
-* `incontrol days`: without parameters it shows the current day. You can also change the current day using this command
-* `incontrol phases`: this shows all currently active phases
-* `incontrol setphase <phase>`: set a phase
-* `incontrol clearphase <phase>`: clear a phase
-* `incontrol numbers`: show all currently active numbers
-* `incontrol setnumber <name> <value>`: set a number to a specific value
-* `incontrol area`: show the current area
+## Technical reference
 
-## Rule Files
+All rule files belong in `config/incontrol`.
 
-All rule files can be found in the `config/incontrol` directory.
+### Rule files
 
 The following rule files are currently supported:
 * `phases.json`: with this file you can define sets of globally active common conditions (called phases). These phases can then be used in all following rules as a more efficient and clean way to select rules
@@ -122,7 +81,7 @@ The following rule files are currently supported:
 * `areas.json`: with this file you can define named areas that can be used by the rules
 * `events.json`: with this file you can define events that allow you to spawn mobs whenever something happens. Currently implemented 'mob_killed', 'block_broken', 'command', and 'custom' events
 
-#### spawn.json
+### `spawn.json`
 
 With this rule file you can control various aspects of when a mob should spawn (or despawn). Note that
 you cannot use this file to add new mobs to the game. For that you need to use `spawner.json` too.
@@ -148,7 +107,7 @@ In addition, each rule can have a `continue` keyword. This will cause a matching
 processing potential different rules (remember! Rules are executed in order)
 
 :::danger Warning
-Rules are executed in order PER category! For every spawn that happens every rule is evalulated from top to bottom.
+Rules are executed in order PER category! For every spawn that happens every rule is evaluated from top to bottom.
 The first rule that matches ALL the conditions will be executed and the rest is ignored (unless
 you use the `continue` keyword).
 :::
@@ -630,7 +589,7 @@ from the phases defined in `phases.json` because otherwise setting them will hav
 
 ## AI System
 
-Using 'spawn.json' it is now possible to modify the ai of mobs using the 'ai' keyword. This keywords needs a json with two possible values:
+Using `spawn.json` it is possible to modify mob AI with the `ai` field. This field needs a JSON object with two possible values:
 
 * 'targets': list of targets
 * 'goals': list of goals
@@ -801,7 +760,7 @@ The following JSON keys are possible in the root of every rule:
 
 * `phase`: a string or list of strings representing all phases that must be active for this rule to work
 * `number`: a JSON object or a list of JSON objects containing a 'name' and 'expression' key. This is a numeric expression that will be evaluated and if it is true then the rule will work. See the numeric expression section higher up in this wiki for more information
-* `mob`: a single mob or list of mobs (like 'minecraft:zombie'). The entire rule will be evalulated for every mob specified in this list. This is a required setting. A mob can also be specified with a json containing the following keys:
+* `mob`: a single mob or list of mobs (like 'minecraft:zombie'). The entire rule will be evaluated for every mob specified in this list. This is a required setting. A mob can also be specified with a json containing the following keys:
   * 'mob': the name of the mob. If this is 'customnpcs:customnpc' then the mob will be a CustomNPC and the following two keywords are also used:
   * 'cloneTab'
   * 'cloneName'
@@ -809,14 +768,14 @@ The following JSON keys are possible in the root of every rule:
 * `mobsfrombiome`: this is a string that can be equal to 'monster', 'creature', 'ambient', 'water_creature', 'water_ambient', or 'misc'. Use this instead of specifying 'mob' manually. This will let the spawn take a random mob (given weight) that is valid for the current biome
 * `addscoreboardtags`: this is string or list of strings that can be used to add scoreboard tags to the spawned entity
 * `attempts`: the number of times In Control will attempt to find a good position to spawn the mob. By default, this is 1. Note, for good results you typically want at least 20 for this value
-* `persecond`: a floating point number indicating the chance of this rule firing. If this is 0.5 then there is 50% chance that this rule will spawn a mob (meaning that on average it will fire every 2 seconds). The default of this value is 1 (which means the rules fire onces per second). The maximum is also 1
-* `amount`: a JSON object containing a 'minimum', 'maximum' and an optional 'groupdistance'. This is the number of mobs that the spawnwer will attempt to spawn at once. The default is 1 for both. If 'groupdistance' is set then these mobs will spawn in groups (near each other). Note that 'groupdistance' is only for 1.18 and higher
+* `persecond`: a floating point number indicating the chance of this rule firing. If this is 0.5 then there is a 50% chance that this rule will spawn a mob (meaning that on average it will fire every 2 seconds). The default is 1, which means the rule fires once per second. The maximum is also 1
+* `amount`: a JSON object containing a 'minimum', 'maximum' and an optional 'groupdistance'. This is the number of mobs that the spawner will attempt to spawn at once. The default is 1 for both. If 'groupdistance' is set then these mobs will spawn in groups (near each other). Note that 'groupdistance' is only for 1.18 and higher
 * `conditions`: a JSON object containing a set of conditions (see below)
 
 The following JSON keys are possible in the conditions block (and ONLY those, for other conditions combine with regular spawn rules):
 
 :::danger Warning
-Warning! Don't depend on the defaults here! Best is to specify all the conditions so you're sure things are allright.
+Warning! Don't depend on the defaults here. Specify all important conditions explicitly, especially the required dimension.
 Especially 'dimension' since that is mandatory!
 :::
 

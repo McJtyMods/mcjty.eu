@@ -3,15 +3,24 @@ import * as z from "zod";
 const mcid = z
   .string()
   .regex(
-    /^[a-z0-9_]+:[a-z0-9_]+/,
+    /^[a-z0-9_.-]+:[a-z0-9_./-]+$/,
     "Invalid minecraft id. Format is <modid>:<id>",
   );
 const modid = z
   .string()
   .regex(
-    /^[a-z0-9_]+/,
-    "Invalid mod id. It should be a string with only lowercase letters, numbers and underscores",
+    /^[a-z0-9_.-]+$/,
+    "Invalid mod id. Use lowercase letters, numbers, underscores, dots, or hyphens",
   );
+
+const stringOrStrings = z.string().or(z.array(z.string()));
+const idOrIds = mcid.or(z.array(mcid));
+const numberCondition = z
+  .object({
+    name: z.string(),
+    expression: z.string(),
+  })
+  .strict();
 
 const counter = z
   .object({
@@ -205,9 +214,12 @@ const blockSchema = z
   .or(z.string());
 
 export const generalSpawnKeywords = z.object({
-  result: z.enum(["default", "allow", "deny"]),
+  result: z.optional(
+    z.enum(["default", "allow", "deny", "deny_with_actions"]),
+  ),
   continue: z.optional(z.boolean()),
-  phase: z.optional(z.string()),
+  phase: z.optional(stringOrStrings),
+  number: z.optional(numberCondition.or(z.array(numberCondition))),
   random: z.optional(z.number().gte(0).lte(1)),
 
   mob: z.optional(mcid.or(z.array(mcid))),
@@ -221,7 +233,9 @@ export const generalSpawnKeywords = z.object({
   canspawnhere: z.optional(z.boolean()),
   notcolliding: z.optional(z.boolean()),
   spawner: z.optional(z.boolean()),
+  spawntype: z.optional(stringOrStrings),
   incontrol: z.optional(z.boolean()),
+  eventspawn: z.optional(z.boolean()),
   seesky: z.optional(z.boolean()),
   slime: z.optional(z.boolean()),
   nodespawn: z.optional(z.boolean()),
@@ -234,7 +248,7 @@ export const generalSpawnKeywords = z.object({
   mintime: z.optional(z.number().int()),
   maxtime: z.optional(z.number().int()),
 
-  daycount: z.optional(expression),
+  daycount: z.optional(z.number().int().or(expression)),
   mindaycount: z.optional(z.number().int()),
   maxdaycount: z.optional(z.number().int()),
 
@@ -243,6 +257,8 @@ export const generalSpawnKeywords = z.object({
   maxlight: z.optional(z.number().int()),
   minlight_full: z.optional(z.number().int()),
   maxlight_full: z.optional(z.number().int()),
+  minlight_sky: z.optional(z.number().int()),
+  maxlight_sky: z.optional(z.number().int()),
 
   weather: z.optional(z.enum(["rain", "thunder"])),
   difficulty: z.optional(z.enum(["peaceful", "easy", "normal", "hard"])),
@@ -280,7 +296,9 @@ export const generalSpawnKeywords = z.object({
   lackoffhanditem: z.optional(itemOrIdTest.or(z.array(itemOrIdTest))),
   bothhandsitem: z.optional(itemOrIdTest.or(z.array(itemOrIdTest))),
 
-  structure: z.optional(mcid),
+  structure: z.optional(idOrIds),
+  hasstructure: z.optional(z.boolean()),
+  structuretags: z.optional(idOrIds),
   scoreboardtags_all: z.optional(z.string().or(z.array(z.string()))),
   scoreboardtags_any: z.optional(z.string().or(z.array(z.string()))),
 
@@ -296,7 +314,9 @@ export const generalSpawnKeywords = z.object({
   instreet: z.optional(z.boolean()),
   insphere: z.optional(z.boolean()),
   inbuilding: z.optional(z.boolean()),
+  inmultibuilding: z.optional(z.boolean()),
   building: z.optional(z.string().or(z.array(z.string()))),
+  multibuilding: z.optional(z.string().or(z.array(z.string()))),
 
   gamestage: z.optional(z.string()),
 
@@ -319,6 +339,12 @@ export const generalSpawnKeywords = z.object({
   followrangeset: z.optional(z.number()),
   followrangemultiply: z.optional(z.number()),
   followrangeadd: z.optional(z.number()),
+  knockbackset: z.optional(z.number()),
+  knockbackmultiply: z.optional(z.number()),
+  knockbackadd: z.optional(z.number()),
+  knockbackresistanceset: z.optional(z.number()),
+  knockbackresistancemultiply: z.optional(z.number()),
+  knockbackresistanceadd: z.optional(z.number()),
   speedset: z.optional(z.number()),
   speedmultiply: z.optional(z.number()),
   speedadd: z.optional(z.number()),
@@ -335,7 +361,18 @@ export const generalSpawnKeywords = z.object({
   sizeadd: z.optional(z.number()),
   angry: z.optional(z.boolean()),
   customname: z.optional(z.string()),
-  potion: z.optional(mcid),
+  potion: z.optional(stringOrStrings),
+  potionnoparticles: z.optional(stringOrStrings),
+  ai: z.optional(z.object({}).loose()),
+  armorhelmet: z.optional(itemOrIdWeighted.or(z.array(itemOrIdWeighted))),
+  armorchest: z.optional(itemOrIdWeighted.or(z.array(itemOrIdWeighted))),
+  armorlegs: z.optional(itemOrIdWeighted.or(z.array(itemOrIdWeighted))),
+  armorboots: z.optional(itemOrIdWeighted.or(z.array(itemOrIdWeighted))),
+  setphase: z.optional(z.string()),
+  clearphase: z.optional(z.string()),
+  togglephase: z.optional(z.string()),
+  changenumber: z.optional(z.string()),
+  customevent: z.optional(z.string()),
 
   nbt: z.optional(z.object({})),
 
@@ -354,7 +391,7 @@ export const generalSpawnKeywords = z.object({
 });
 
 type SpawnRefinementValue = {
-  result: "default" | "allow" | "deny";
+  result?: "default" | "allow" | "deny" | "deny_with_actions";
   mincount?: number | z.infer<typeof counter>;
   maxcount?: number | z.infer<typeof counter>;
   minlight?: number;
@@ -424,6 +461,38 @@ export const spawnSchema1_18 = z.array(
   ),
 );
 
+const spawnerPositionCheck = z
+  .object({
+    mintime: z.optional(z.number().int()),
+    maxtime: z.optional(z.number().int()),
+    minlight: z.optional(z.number().int().gte(0).lte(15)),
+    maxlight: z.optional(z.number().int().gte(0).lte(15)),
+    minlight_full: z.optional(z.number().int().gte(0).lte(15)),
+    maxlight_full: z.optional(z.number().int().gte(0).lte(15)),
+    minlight_sky: z.optional(z.number().int().gte(0).lte(15)),
+    maxlight_sky: z.optional(z.number().int().gte(0).lte(15)),
+    biome: z.optional(idOrIds),
+    biometags: z.optional(idOrIds),
+    seesky: z.optional(z.boolean()),
+    cave: z.optional(z.boolean()),
+    structure: z.optional(idOrIds),
+    hasstructure: z.optional(z.boolean()),
+    structuretags: z.optional(idOrIds),
+    incity: z.optional(z.boolean()),
+    inbuilding: z.optional(z.boolean()),
+    inmultibuilding: z.optional(z.boolean()),
+    building: z.optional(stringOrStrings),
+    multibuilding: z.optional(stringOrStrings),
+    instreet: z.optional(z.boolean()),
+    insphere: z.optional(z.boolean()),
+    gamestage: z.optional(z.string()),
+    summer: z.optional(z.boolean()),
+    winter: z.optional(z.boolean()),
+    spring: z.optional(z.boolean()),
+    autumn: z.optional(z.boolean()),
+  })
+  .strict();
+
 export const spawnerSchema = z.array(
   z
     .object({
@@ -439,20 +508,30 @@ export const spawnerSchema = z.array(
           "misc",
         ]),
       ),
-      phase: z.optional(z.string()),
+      phase: z.optional(stringOrStrings),
+      number: z.optional(numberCondition.or(z.array(numberCondition))),
       addscoreboardtags: z.optional(z.string().or(z.array(z.string()))),
-      attempts: z.number().int(),
-      persecond: z.number(),
+      attempts: z.optional(z.number().int().positive()),
+      persecond: z.optional(z.number().gte(0).lte(1)),
       result: z
         .optional(z.any())
         .refine((v) => v === undefined, "'result' only works for spawn.json"),
-      amount: z
-        .object({
-          minimum: z.number().int(),
-          maximum: z.number().int(),
-          groupdistance: z.optional(z.number().int()),
-        })
-        .strict(),
+      amount: z.optional(
+        z
+          .object({
+            minimum: z.optional(z.number().int().positive()),
+            maximum: z.optional(z.number().int().positive()),
+            groupdistance: z.optional(z.number().int().positive()),
+          })
+          .strict()
+          .refine(
+            (value) =>
+              value.minimum === undefined ||
+              value.maximum === undefined ||
+              value.minimum <= value.maximum,
+            "Minimum amount must not be greater than maximum amount",
+          ),
+      ),
       conditions: z
         .object({
           dimension: mcid.or(
@@ -461,6 +540,7 @@ export const spawnerSchema = z.array(
               .refine((v) => v.length > 0, "Must have at least one dimension"),
           ),
           norestrictions: z.optional(z.boolean()),
+          inliquid: z.optional(z.boolean()),
           inwater: z.optional(z.boolean()),
           inlava: z.optional(z.boolean()),
           inair: z.optional(z.boolean()),
@@ -480,10 +560,34 @@ export const spawnerSchema = z.array(
           maxhostile: z.optional(z.number().int()),
           maxneutral: z.optional(z.number().int()),
           maxlocal: z.optional(z.number().int()),
+          and: z.optional(spawnerPositionCheck),
+          not: z.optional(spawnerPositionCheck),
         })
-        .strict(),
+        .strict()
+        .refine(
+          (value) =>
+            value.mindist === undefined ||
+            value.maxdist === undefined ||
+            value.mindist < value.maxdist,
+          "Minimum distance must be smaller than maximum distance",
+        )
+        .refine(
+          (value) =>
+            value.minheight === undefined ||
+            value.maxheight === undefined ||
+            value.minheight < value.maxheight,
+          "Minimum height must be smaller than maximum height",
+        ),
     })
-    .strict(),
+    .strict()
+    .refine(
+      (value) => value.mob !== undefined || value.mobsfrombiome !== undefined,
+      "Specify either 'mob' or 'mobsfrombiome'",
+    )
+    .refine(
+      (value) => !(value.mob !== undefined && value.mobsfrombiome !== undefined),
+      "'mob' and 'mobsfrombiome' cannot be combined",
+    ),
 );
 
 export const phasesSchema = z

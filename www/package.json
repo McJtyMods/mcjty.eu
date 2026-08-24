@@ -16,6 +16,7 @@
     "start": "docusaurus serve",
     "swizzle": "docusaurus swizzle",
     "typecheck": "tsc --project tsconfig.typecheck.json",
+    "validate:incontrol-docs": "node scripts/validate-incontrol-docs.mjs",
     "write-heading-ids": "docusaurus write-heading-ids",
     "write-translations": "docusaurus write-translations"
   },

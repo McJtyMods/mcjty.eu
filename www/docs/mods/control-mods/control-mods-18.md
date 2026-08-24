@@ -1,3 +1,7 @@
+---
+sidebar_position: 90
+---
+
 # Control Mods New (1.18+)
 
 ## Introduction
