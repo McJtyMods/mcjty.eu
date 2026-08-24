@@ -1,13 +1,33 @@
 # Lost Cities and Lost Worlds
 
 Lost Cities is a world generation mod. Lost Worlds is a companion mod that adds two new world
-types that can be used in conjuction with Lost Cities. In this chapter both mods are explained.
+types that can be used in conjunction with Lost Cities. This page introduces both mods and explains
+how to configure them.
 
-This documentation is mostly relevant for Minecraft 1.18.2 or later. Lost Worlds is only available
-on Minecraft 1.20.1 or later.
+## Documentation by Minecraft version
 
-You can find the documentation for older versions here:
-[The Lost Cities Legacy Version](./lost-cities-legacy.md)
+### Minecraft 1.20.1 and newer (current)
+
+The following guides are the current technical documentation for recent versions of Lost Cities:
+
+* [Asset system](./asset_structure.md) — create and package buildings, parts, palettes, city styles, world styles, and other datapack assets
+* [City generation](./city_generation.md) — understand how city chunks, streets, buildings, multibuildings, highways, and other features are selected and generated
+* [Profile options](./profile_options.md) — configure Lost Cities profiles and their world-generation options
+* [World-generation thread safety](./thread_safety.md) — concurrency rules for developers changing generation code or integrating companion features
+
+Use these documents as the source of truth for Minecraft 1.20.1 and newer. The general setup instructions
+on this page also apply to recent versions. Lost Worlds is available for Minecraft 1.20.1 and newer.
+
+### Older documentation (reference only)
+
+These pages describe older implementations. Some concepts and examples may still be useful, but details
+can be incomplete or differ from current versions:
+
+* [Asset DataPack System](./asset-datapack.md) — older asset-system documentation, primarily from the Minecraft 1.18.2 era
+* [Basic Structure](./structure.md) — older overview of the generation process
+
+For Minecraft 1.12.2 and 1.16.5, see the [Lost Cities legacy documentation](./lost-cities-legacy.md).
+That page also links to the pre-datapack asset documentation for Minecraft 1.17 and older.
 
 ## Introduction
 
@@ -171,24 +191,3 @@ Then also create an _extended.json_ file with exactly the same contents.
 
 If you followed all these steps correctly then you should be able to start the server and it will
 use the caves world type.
-
-## Basic Structure
-
-This page is mostly about the internal structure and configuration about the mod.
-In this first section the basic operation of the mod is explained.
-
-The buildings, bridges, subway system, fountains and other structures you find in the world are actually not structures but real worldgen.
-That means that are generated at the very first stage when a chunk is built.
-This makes generation very efficient and also allows it to fit much better when the surrounding world.
-
-It is important to note that this mod cannot depend on any specific order of chunk generation.
-When generating a chunk it cannot depend on neighbouring chunks already being generated, so it has to be able to calculate things on its own.
-Nevertheless, this mod maintains several world-wide data structures and is able to query information about nearby chunks without actually having to generate the chunk.
-
-Read about it here: [Basic Structure](./structure.md)
-
-
-## The Asset System
-
-The asset system is a powerful system that you can customize to make your own buildings, decorations, control loot, mob spawners, building blocks and more.
-Read about it here: [Asset DataPack System](./asset-datapack.md)
