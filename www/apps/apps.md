@@ -10,3 +10,4 @@ Minecraft.
 ## Android
 
 * [Balls In Box](balls-in-box.md)
+* [Gravity Hex](gravity-hex.md)
