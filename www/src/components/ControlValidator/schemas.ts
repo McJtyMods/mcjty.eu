@@ -22,6 +22,44 @@ const numberCondition = z
   })
   .strict();
 
+const kubeJsNumericOperator = z.enum([
+  "=",
+  "==",
+  "!=",
+  "<>",
+  ">",
+  ">=",
+  "<",
+  "<=",
+]);
+const kubeJsVariableCheck = z.union([
+  z
+    .object({
+      variable: z.string().min(1, "KubeJS variable name cannot be empty"),
+      bool: z.boolean(),
+    })
+    .strict(),
+  z
+    .object({
+      variable: z.string().min(1, "KubeJS variable name cannot be empty"),
+      condition: z.optional(kubeJsNumericOperator),
+      int: z.number().int(),
+    })
+    .strict(),
+  z
+    .object({
+      variable: z.string().min(1, "KubeJS variable name cannot be empty"),
+      condition: z.optional(kubeJsNumericOperator),
+      double: z.number(),
+    })
+    .strict(),
+]);
+const kubeJsCondition = kubeJsVariableCheck.or(
+  z
+    .array(kubeJsVariableCheck)
+    .min(1, "KubeJS condition needs at least one variable check"),
+);
+
 const counter = z
   .object({
     mob: z.optional(mcid.or(z.array(mcid))),
@@ -428,6 +466,7 @@ export const spawnSchema1_20 = z.array(
         hasstructure: z.optional(z.boolean()),
         structuretags: z.optional(mcid.or(z.array(mcid))),
         cave: z.optional(z.boolean()),
+        kubejs: z.optional(kubeJsCondition),
       })
       .strict(),
   ),
@@ -488,6 +527,7 @@ const spawnerPositionCheck = z
     winter: z.optional(z.boolean()),
     spring: z.optional(z.boolean()),
     autumn: z.optional(z.boolean()),
+    kubejs: z.optional(kubeJsCondition),
   })
   .strict();
 
@@ -612,6 +652,7 @@ export const phasesSchema = z
             autumn: z.optional(z.boolean()),
 
             state: z.optional(z.string()),
+            kubejs: z.optional(kubeJsCondition),
           })
           .strict(),
       })

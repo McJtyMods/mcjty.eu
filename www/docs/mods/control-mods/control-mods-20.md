@@ -27,6 +27,8 @@ Begin with [Getting started](./control-mods-20-getting-started.md). It includes 
 
 This reference primarily describes the 1.20.1 implementation. The core rule model also applies to newer versions, but integration and Minecraft internals can differ.
 
+The optional KubeJS integration is available starting with In Control 1.20-9.5.0 and is also supported in 1.21 and newer versions. The `kubejs` condition only works when KubeJS is installed.
+
 For 1.21:
 
 - `biometype` is no longer available; use `biometags`.
@@ -454,6 +456,41 @@ Contrast above example with the old syntax where it would compare the amount of 
 
 * Table with all possible conditions [this page](./control-mods-20-table.md)
 
+#### KubeJS server persistent data
+
+The optional `kubejs` condition tests top-level values stored in KubeJS's `server.persistentData`. KubeJS must be installed to use this condition. Values stored only in KubeJS's `global` object are not examined. The condition accepts either one variable-check object or an array of checks. When it is an array, every check must match:
+
+```json
+"kubejs": [
+  {
+    "variable": "Potato",
+    "bool": true
+  },
+  {
+    "variable": "Amount",
+    "condition": ">=",
+    "int": 5
+  },
+  {
+    "variable": "Ratio",
+    "condition": "<",
+    "double": 2.5
+  }
+]
+```
+
+Every check requires a non-empty string named `variable`, which identifies a top-level key in `server.persistentData`, and exactly one value field:
+
+* `bool`: a boolean value. Boolean checks compare for equality and cannot have a `condition` field.
+* `int`: a whole number.
+* `double`: any numeric value, including a decimal.
+
+The `int` and `double` forms accept `=`, `==`, `!=`, `<>`, `>`, `>=`, `<`, and `<=` in `condition`. If `condition` is omitted, equality is used.
+
+A missing persistent-data value does not match. A value also does not match when its stored type is incompatible; for example, the string `"5"` is not a number. Numeric values in `server.persistentData` work with both `int` and `double` checks. A `double` comparison keeps the decimal part and does not truncate it to an integer.
+
+The condition is available in `spawn.json`, `summonaid.json`, `loot.json`, `experience.json`, `effects.json`, `breakevents.json`, `placeevents.json`, `leftclicks.json`, and `rightclicks.json`. It is also available in `phases.json`, in the `conditions` object of `events.json`, and inside the `and` and `not` blocks of a `spawner.json` `conditions` object. It is not a top-level `spawner.json` condition. See the [complete KubeJS examples](./control-mods-20-examples.md#kubejs-server-persistent-data-conditions).
+
 ### Actions
 
 In this section all the actions per rule type are listed.
@@ -583,6 +620,7 @@ In addition, it is much cleaner. Phases only work with a limited set of conditio
 * `weather`
 * `winter`, `summer`, `spring`, and `autumn`
 * `state`
+* `kubejs`: tests one or more top-level values in KubeJS's `server.persistentData`; KubeJS must be installed
 
 Since 1.20.1 it is now also possible to set phases from `spawn.json` or some other rule files. Note that these phases should be separate
 from the phases defined in `phases.json` because otherwise setting them will have no effect.
@@ -703,6 +741,7 @@ Events are defined in `events.json` and have the following structure:
   * `number`: this is a json object (or a list) with two keys:
       * `name`: the name of the number to test
       * `expression`: an expression in which the number will be used. See the numeric expression section higher up in this wiki for more information
+  * `kubejs`: one variable check or a list of checks against KubeJS's `server.persistentData`. See [KubeJS server persistent data](#kubejs-server-persistent-data)
 * `spawn`: this is an optional JSON object with the following structure:
   * `mob`: this is a string or a list of strings representing the mob(s) that will be spawned
   * `mincount`/`maxcount`: the minimum/maximum amount of mobs to spawn. Default is 1 for both
@@ -822,6 +861,7 @@ Supported conditions in 'and' and 'not':
 * `instreet`: if true then the spawn position must be in a street
 * `insphere`: if true then the spawn position must be in a sphere
 * `gamestage`: a gamestage condition
+* `kubejs`: one variable check or a list of checks against KubeJS's `server.persistentData`. KubeJS must be installed
 * `summer`: if true then it must be summer
 * `winter`: if true then it must be winter
 * `spring`: if true then it must be spring

@@ -16,6 +16,7 @@ This is the complete examples library. If you are new to In Control, begin with 
 | Add or increase spawning | [Villagers in water](#spawner-spawn-villagers-in-water), [more mobs after day 20](#spawner-increase-hostile-mob-spawns-after-day-20), [more zombies](#getting-zombies-to-spawn-more) |
 | Loot, effects, and interaction | [Loot](#loot-examples), [effects](#effect-examples), [block breaking](#break-events), [right-click rules](#right-click-examples) |
 | Event-driven behavior | [Mob killed](#events-spawn-chickens-when-a-cow-is-killed), [block broken](#events-spawn-wither-skeleton-when-diamond-ore-is-broken), [custom event](#changing-what-a-spawner-spawns) |
+| KubeJS integration | [Server persistent-data conditions](#kubejs-server-persistent-data-conditions) |
 | Complete advanced scenario | [Zombie apocalypse](#scenario-zombie-apocalypse-world) |
 
 :::tip Before testing
@@ -96,6 +97,64 @@ Define phases depending on a 10 day cycle and where in the cycle we are. These p
   }
 ]
 ```
+
+### KubeJS server persistent-data conditions
+
+The optional `kubejs` condition reads top-level values from KubeJS's `server.persistentData`. Values placed only in KubeJS's `global` object do not match. This complete `spawn.json` rule matches only when all three persistent-data values have compatible types and values:
+
+```json title="spawn.json"
+[
+  {
+    "kubejs": [
+      {
+        "variable": "Potato",
+        "bool": true
+      },
+      {
+        "variable": "Amount",
+        "condition": ">=",
+        "int": 5
+      },
+      {
+        "variable": "Ratio",
+        "condition": "<",
+        "double": 2.5
+      }
+    ],
+    "result": "deny"
+  }
+]
+```
+
+In `spawner.json`, put `kubejs` inside `conditions.and` or `conditions.not`, not directly in `conditions`. Every condition in `and` must match. If a condition in `not` matches, the candidate is rejected. In this example, `Amount` must be at least `5`, while `Disabled` must not be `true`:
+
+```json title="spawner.json"
+[
+  {
+    "mob": "minecraft:zombie",
+    "conditions": {
+      "dimension": "minecraft:overworld",
+      "and": {
+        "kubejs": [
+          {
+            "variable": "Amount",
+            "condition": ">=",
+            "int": 5
+          }
+        ]
+      },
+      "not": {
+        "kubejs": {
+          "variable": "Disabled",
+          "bool": true
+        }
+      }
+    }
+  }
+]
+```
+
+See the [KubeJS condition reference](./control-mods-20.md#kubejs-server-persistent-data) for the accepted value types, numeric operators, and all supported rule files.
 
 ### Spawns: allow only in plains biome
 
