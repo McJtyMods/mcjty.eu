@@ -65,12 +65,11 @@ Using the profile button you can choose between different profiles. These profil
 
 ![Extra configuration](../../assets/lostcities/cities_profile_button.png)
 
-It is also possible to further customize the cities by pressing the _Customize_ button:
+It is also possible to further customize the cities by pressing the _Customize_ button. This creates an editable copy of the selected profile:
 
 ![Extra configuration](../../assets/lostcities/cities_customize_button.png)
 
-Using that button you can configure the style of the cities, the amount of cities, the distance between cities, the height of the buildings,
-how much damage there is and so on.
+The page button cycles through focused **Cities**, **Buildings**, **Damage**, **Transport**, and **Various** pages. The **All** page is a scrollable editor for every profile setting, including advanced settings not present on the focused pages. See [In-game profile editor](./profile_options.md#in-game-profile-editor) for its controls and validation rules, and the complete [profile options reference](./profile_options.md) for what each setting does.
 
 After you have configured the world you can press the _Done_ button and continue with creating the world.
 

@@ -6,6 +6,20 @@ The options below are the JSON properties consumed by `LostCityProfile`. Default
 
 Spatial options state their unit explicitly. One chunk is 16x16 blocks horizontally. A block distance is measured in Minecraft block coordinates, while a chunk distance counts chunk positions. Heights and vertical offsets are measured in blocks unless a description names another unit, such as city levels or six-block units.
 
+## In-game profile editor
+
+The Lost Cities world-customization screen has an **All** page in addition to the focused **Cities**, **Buildings**, **Damage**, **Transport**, and **Various** pages. Select **Customize** to make the chosen profile editable, then use the page button to reach **All**. Scroll the mouse wheel to browse every setting exposed by the profile. Because this page is generated from the profile definitions, newly added settings appear automatically.
+
+The editor uses controls appropriate for each setting:
+
+- Booleans and settings with a fixed set of allowed values use buttons that cycle through their choices.
+- Numbers and free-form strings use text fields.
+- String lists, such as `lostcity.forceSpawnBuildings` and `lostcity.forceSpawnParts`, are entered as comma-separated values.
+
+Hover over a control to see the setting's full `category.option` name, description, and configured range or allowed values. Numeric input outside its range is clamped to the closest limit. An edit that violates a relationship between settings—for example, a minimum that exceeds its maximum—is rejected without changing the customized profile; the affected row is shown in red and its tooltip contains the error.
+
+The **All** editor and the `railwayLevelOffset` option documented below are available in Lost Cities for Minecraft 1.20.1, 1.21.1, 1.21.11, and 26.1.2.
+
 ## File format
 
 Options are grouped into five objects. Properties may be omitted, in which case their default is used.
@@ -173,11 +187,25 @@ Secondary-road counts are requests rather than guarantees. If a primary block ca
 | `railwaysEnabled` | `true` | Enables rail lines. Stations are controlled separately and may still generate when this is false. |
 | `railwayStationsEnabled` | `true` | Enables railway stations. |
 | `railwaySurfaceStationsEnabled` | `true` | Enables surface stations; false restricts generation to underground stations. |
+| `railwayLevelOffset` | `0` (-8–2) | Raises or lowers the underground railway network in six-block increments relative to its original level. Positive values raise it; negative values lower it. |
 | `generateSpawners` | `true` | Allows configured spawners in buildings. |
 | `generateLoot` | `true` | Allows configured loot in building chests. |
 | `generateLighting` | `false` | Adds minimal building lighting. |
 | `chestWithoutLootChance` | `0.2` (0–1) | Chance that an otherwise eligible chest is empty. |
 | `buildingWithoutLootChance` | `0.2` (0–1) | Chance that a building has neither loot nor spawners. |
+
+### Railway level offset
+
+The original underground railway base is city level `-3`, or 18 blocks below the profile's `groundLevel`. `railwayLevelOffset` is added to that base:
+
+```text
+effective railway level = -3 + railwayLevelOffset
+railway Y = groundLevel + effective railway level * 6
+```
+
+For example, `railwayLevelOffset: 2` puts the underground network at level `-1`, six blocks below `groundLevel`. A value of `-2` puts it at level `-5`, thirty blocks below `groundLevel`.
+
+Surface stations remain at the local city level and use sloped parts to descend toward the configured underground level. If the network is too low for the available approach chunks, Lost Cities generates an underground station with stair access instead. Railway dungeons use the adjacent rail's actual level, and buildings above railways have their cellar count reduced when necessary to avoid intersecting the railway parts. A world style with `railwayavoidance: block_railway` continues to give the building priority and suppress an intersecting railway.
 
 ## `cities`
 
