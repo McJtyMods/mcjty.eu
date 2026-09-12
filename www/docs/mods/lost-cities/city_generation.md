@@ -703,6 +703,12 @@ when some references are unavailable, preserving the earlier fail-open
 behavior without cutting off individual chunks of a random or predefined
 multibuilding.
 
+When `avoidFlattening` is enabled together with village or configured structure avoidance, the resolver also keeps adjacent chunks city-free as a terrain-transition ring, even if `avoidVillagesAdjacent` and `avoidStructuresAdjacent` are false. Flattening is suppressed in chunks directly containing an avoided structure reference; the surrounding ring remains available for normal terrain correction. These are general mod configuration settings, not profile properties.
+
+Terrain correction makes steep transitions less regular and removes unsupported vines left by lowering terrain or invalid attachment blocks. Shared terrain-height sampling uses a consistent sample even for groups of size two; negative-side groups near coordinate axes do not overwrite samples owned by positive-side groups. This prevents inconsistent heights from breaking multibuilding generation near the axes.
+
+Explosion damage no longer runs the old cleanup that deleted blocks across the chunk above an almost-empty layer. This avoids artificial chunk-sized gaps, especially in highways; ordinary explosion damage and debris still apply.
+
 ## 1. Deciding whether a chunk belongs to a city
 
 `BuildingInfo.isCityRaw()` computes a `cityFactor` through
@@ -1085,9 +1091,13 @@ also clear fifteen blocks of extra headroom unless the profile is cavernous.
 The clearing predicate preserves logs and leaves. Tunnel parts rely on their
 own asset carving and do not perform this extra pass.
 
-Finally, if `HIGHWAY_SUPPORTS` is enabled and the selected part declares a
-support palette character through its `META_SUPPORT` metadata, the renderer
-builds transformed corner supports. Straight and four-way parts use the two
+Finally, `HIGHWAY_SUPPORTS` enables supports. The selected part's `META_SUPPORT`
+character takes precedence; otherwise the world style supplies `highwaysupport`
+and `highwaysupportpart`. A selected support part repeats downward from one
+block below the deck, with each column stopping independently at terrain or
+minimum build height. See [Bridge and highway supports](./asset_structure.md#bridge-and-highway-supports)
+for palette, rotation, and precedence rules. With a support character instead
+of a support part, the renderer builds transformed corner supports. Straight and four-way parts use the two
 corners of the unrotated highway frame. Bend and T-junction parts add the third
 corner contributed by the rotated highway frame. Each support descends from
 one block below the highway for at most forty blocks, filling empty blocks
@@ -1142,3 +1152,9 @@ neighbors are actually generated.
 | Per-chunk building test passes and no later veto applies | Selected single-chunk building |
 | No building, park roll passes, and neighborhood threshold passes | Park |
 | No building and park does not survive both stages | Normal street in the current implementation |
+
+## Integration API: the current chunk's city style
+
+In Lost Cities **1.20-7.5.5** and later Minecraft branches, `ILostChunkInfo.getCityStyle()` returns an `ILostCityCityStyle` for the current chunk, including when `isCity()` is false. Call `getName()` on the returned asset for its city-style name.
+
+The style follows surrounding city influences and the active profile, with the world-style fallback when no city influences the chunk. City streets use the neighboring chunks' majority style, matching generation. Integrations can therefore select matching content outside city centers without requiring the chunk itself to be a city.

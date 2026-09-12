@@ -16,9 +16,9 @@ The editor uses controls appropriate for each setting:
 - Numbers and free-form strings use text fields.
 - String lists, such as `lostcity.forceSpawnBuildings` and `lostcity.forceSpawnParts`, are entered as comma-separated values.
 
-Hover over a control to see the setting's full `category.option` name, description, and configured range or allowed values. Numeric input outside its range is clamped to the closest limit. An edit that violates a relationship between settings—for example, a minimum that exceeds its maximum—is rejected without changing the customized profile; the affected row is shown in red and its tooltip contains the error.
+Hover over a control to see the setting's full `category.option` name, description, and configured range or allowed values. Numeric input outside its range is rejected without changing the customized profile. The field keeps the text you are typing instead of replacing temporary input with a limit, so multi-digit values can be entered normally. Range errors and invalid combinations—for example, a minimum that exceeds its maximum or an odd railway spacing—are shown in red with an error tooltip. This validation applies to numeric fields on both the focused pages and the **All** page.
 
-The **All** editor and the `railwayLevelOffset` option documented below are available in Lost Cities for Minecraft 1.20.1, 1.21.1, 1.21.11, and 26.1.2.
+This reference includes the changes in Lost Cities **1.20-7.5.5**, which also apply to later Minecraft branches. Older mod releases on Minecraft 1.20.1 may lack these settings or editor improvements.
 
 ## File format
 
@@ -187,12 +187,31 @@ Secondary-road counts are requests rather than guarantees. If a primary block ca
 | `railwaysEnabled` | `true` | Enables rail lines. Stations are controlled separately and may still generate when this is false. |
 | `railwayStationsEnabled` | `true` | Enables railway stations. |
 | `railwaySurfaceStationsEnabled` | `true` | Enables surface stations; false restricts generation to underground stations. |
+| `railwaySpacingNorthSouth` | `10` (4–128, even only) | North–south distance in chunks between east–west railway tracks. |
+| `railwaySpacingEastWest` | `10` (4–128, even only) | East–west distance in chunks between north–south railway tracks. |
 | `railwayLevelOffset` | `0` (-8–2) | Raises or lowers the underground railway network in six-block increments relative to its original level. Positive values raise it; negative values lower it. |
 | `generateSpawners` | `true` | Allows configured spawners in buildings. |
 | `generateLoot` | `true` | Allows configured loot in building chests. |
 | `generateLighting` | `false` | Adds minimal building lighting. |
 | `chestWithoutLootChance` | `0.2` (0–1) | Chance that an otherwise eligible chest is empty. |
 | `buildingWithoutLootChance` | `0.2` (0–1) | Chance that a building has neither loot nor spawners. |
+
+### Railway spacing
+
+Both spacing values must be even numbers from `4` through `128`. The defaults preserve the original ten-chunk railway spacing. The names describe the direction in which the gap is measured, perpendicular to the tracks. Increase the values for a sparser network or decrease them for a denser one. The **Transport** page exposes them as **Rail N-S gap** and **Rail E-W gap**; they are also on **All**.
+
+For example, this spaces east–west tracks 20 chunks apart and north–south tracks 16 chunks apart:
+
+```json
+{
+  "lostcity": {
+    "railwaySpacingNorthSouth": 20,
+    "railwaySpacingEastWest": 16
+  }
+}
+```
+
+The station pattern repeats every twice the configured spacing on each axis; this does not guarantee a station at every crossing. Surface-station slopes account for the available east–west approach distance. If the descent cannot fit, an underground station is used; a surface extension is skipped when it would leave too little room. Intercity highway planning also uses these spacings to avoid parallel railway corridors and station columns. Change spacing before generating a new world to avoid mismatched connections with existing chunks.
 
 ### Railway level offset
 
@@ -292,6 +311,7 @@ These options have an effect only when the client has Lost Cities installed. `-1
 ## Validation and compatibility notes
 
 - Minimum values must not exceed their corresponding maximums for secondary-road counts, tertiary-road lengths, or highway hub distances.
+- Both railway spacing values must be even numbers from `4` through `128`.
 - `highwayHubSampleSpacing` cannot exceed `highwayPlanningCellSize`.
 - Mode names and conflict-policy names are case-insensitive when read, but the generated profiles use the uppercase enum names shown above.
 - Profile defaults and available options can change between mod versions. Keep custom profiles under version control and compare them with a newly generated default profile after upgrading.

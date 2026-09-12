@@ -422,7 +422,7 @@ Each metadata entry has a `key` and one typed value: `boolean`, `char`, `string`
 | Key and value | Effect |
 |---|---|
 | `dontconnect` boolean | Prevents Lost Cities from cutting a connection/door through that building floor |
-| `support` char | Palette character used for downward bridge or highway supports |
+| `support` char | Palette character used for downward bridge or highway supports; takes precedence over style-level support settings |
 | `z1`, `z2` integer | Z bounds used when clearing/generating stair access |
 | `nowater` boolean | Prevents hard-air cells in this part from becoming water below water level |
 | `forcedair` boolean | Makes hard-air (`minecraft:structure_void`) cells overwrite existing blocks with air in every placement context |
@@ -507,6 +507,8 @@ Top-level fields:
 | `inherit` | Parent city-style asset. Most scalar settings fall back to the parent; selector lists and stuff tags are appended |
 | `style` | Palette-style asset used for chunks in this city style |
 | `explosionchance` | Additional explosion chance factor for the style |
+| `bridgesupport` | Optional single-character palette key for bridge supports; inherits from the parent |
+| `bridgesupportpart` | Optional reusable bridge-support part ID; inherits from the parent |
 | `stuff_tags` | Stuff categories enabled here. The tag `all` is always present |
 | `profile_overrides` | Optional city-local profile overrides; absent values fall back to the selected profile |
 | `generalblocks` | Palette characters for generator-wide materials |
@@ -578,6 +580,8 @@ The profile's `worldStyle` selects this asset. It is the root of most asset reac
 | `cityspheres` | object | Optional center part for sphere profiles |
 | `scattered` | object | Scattered-placement configuration |
 | `parts` | object | Monorail, highway, and railway part families |
+| `bridgesupport`, `highwaysupport` | string | Optional single-character palette keys for bridge/highway supports |
+| `bridgesupportpart`, `highwaysupportpart` | string | Optional reusable support part IDs for bridges/highways |
 | `citybiomemultipliers` | list | Biome-dependent multipliers applied to city chance |
 
 Every `citystyles` entry requires `factor` and `citystyle` and optionally has a `biomes` matcher. The generator filters by biome and makes a weighted choice. A city-biome multiplier entry requires `multiplier` and a `biomes` matcher. Multiplier entries are tested in list order and the first match wins; the multiplier is `1.0` if none matches. They are alternatives, not cumulative multipliers.
@@ -602,6 +606,30 @@ If `settings` is omitted, Lost Cities uses `ignore`, a rail-part height of `1`, 
 `parts.monorails` accepts `both`, `vertical`, and `station`, each a single part ID. `parts.highways` accepts `tunnel`, `open`, and `bridge` for straight sections; `tunnel_bi`, `open_bi`, and `bridge_bi` for four-way crossings; `tunnel_bend`, `open_bend`, and `bridge_bend` for bends; and `tunnel_t`, `open_t`, and `bridge_t` for T-junctions. Each highway field accepts either one ID or a list. The unrotated bend connects west and south; the unrotated T-junction connects west, east, and south. The generator rotates these parts to match the planned connections. `parts.railways` accepts `stationunderground`, `stationopen`, `stationopenroof`, `stationundergroundstairs`, `stationstaircase`, `stationstaircasesurface`, `railshorizontal`, `railshorizontalend`, `railshorizontalwater`, `railsvertical`, `railsverticalwater`, `rails3split`, `railsbend`, `railsflat`, `railsdown1`, and `railsdown2`, again as one ID or a list. Omitted values use the corresponding built-in part names.
 
 `scattered` is described with the scattered asset below because both layers are needed.
+
+### Bridge and highway supports
+
+Lost Cities **1.20-7.5.5** and later Minecraft branches accept support settings at the top level of world-style assets, with bridge-specific overrides at the top level of city-style assets. Merge settings such as these into a world style:
+
+```json
+{
+  "bridgesupport": "b",
+  "bridgesupportpart": "myexpansion:bridge_pillars",
+  "highwaysupportpart": "myexpansion:highway_pillars"
+}
+```
+
+The referenced parts must exist in `lostcities/parts`, and `b` must resolve in the chunk's palette. The profile's `bridgeSupports` and `highwaySupports` switches still control whether supports generate.
+
+Support selection follows these rules:
+
+- A bridge/highway part's existing `support` metadata wins over all style settings and selects the legacy block-support behavior. Remove that metadata from a custom deck part if it should use style-defined support parts.
+- For bridges without that metadata, the resolved city style's `bridgesupport` and `bridgesupportpart` take precedence. An absent city support character falls back to the world character. The world support part is used only when both city settings are absent after inheritance. A city character alone therefore selects block supports instead of the world support part.
+- For highways without that metadata, the world style supplies `highwaysupport` and `highwaysupportpart`. A support part takes precedence over block pillars.
+
+Bridge support parts are used on interior chunks with bridge neighbors at both ends. A support character can still provide the bridge's end connections when a support part is selected. Highway support parts are placed below the selected highway deck.
+
+A support part repeats its **complete stack of slices** downward, starting with its top slice one block below the deck. Each column stops independently at the first non-empty world block or the world's minimum build height. Air and structure-void entries leave the world unchanged. The part uses the chunk palette plus its own palette and rotates with the bridge or highway. It must contain at least one slice. This differs from scattered structures' `supportpart`, which repeats only the bottom slice.
 
 ### Scattered assets
 
@@ -858,6 +886,7 @@ The alias `/lost` can be used instead of `/lostcities`. These commands operate o
 Common failures:
 
 - **Asset never appears:** it exists but is not reachable from the active world style/city style, has a zero/very small effective weight, fails a biome/distance test, or the profile names another world style.
+- **No part condition matches:** the error identifies the building ID, chunk, failing floor, floor/cellar counts, city level, previous part, and multibuilding ID/position. Check that the building's `parts` conditions cover that floor, including cellars and the roof.
 - **Missing asset error:** a custom reference was left unqualified and resolved to `lostcities:<name>`.
 - **Undefined palette character:** the active style, building palette, and part palette together do not define every character used by the part.
 - **Datapack validation fails:** a required field is absent, an enum/case-sensitive field is misspelled, a block state is invalid, or an old array/`type`/`name` format was used.
