@@ -15,7 +15,7 @@ This is the complete examples library. If you are new to In Control, begin with 
 | Modify spawned mobs | [Stronger mobs](#spawn-beefed-up-mobs), [danger after a wither](#making-a-dangerous-world-after-spawning-a-wither) |
 | Add or increase spawning | [Villagers in water](#spawner-spawn-villagers-in-water), [more mobs after day 20](#spawner-increase-hostile-mob-spawns-after-day-20), [more zombies](#getting-zombies-to-spawn-more) |
 | Loot, effects, and interaction | [Loot](#loot-examples), [effects](#effect-examples), [block breaking](#break-events), [right-click rules](#right-click-examples) |
-| Event-driven behavior | [Mob killed](#events-spawn-chickens-when-a-cow-is-killed), [block broken](#events-spawn-wither-skeleton-when-diamond-ore-is-broken), [custom event](#changing-what-a-spawner-spawns) |
+| Event-driven behavior | [Mob killed](#events-spawn-chickens-when-a-cow-is-killed), [block broken](#events-spawn-wither-skeleton-when-diamond-ore-is-broken), [replacing mobs](#replacing-mobs) |
 | KubeJS integration | [Server persistent-data conditions](#kubejs-server-persistent-data-conditions) |
 | Complete advanced scenario | [Zombie apocalypse](#scenario-zombie-apocalypse-world) |
 
@@ -956,7 +956,21 @@ Then in `spawner.json` we start spawning wither skeletons as soon as the `wither
 ]
 ```
 
-### Changing what a spawner spawns
+### Replacing mobs
+
+Usually, replacing the spawns of mob A with mob B does not require a literal one-for-one replacement. Deny mob A in
+`spawn.json`, then add a rule for mob B to `spawner.json`. This is the simplest approach when you can describe the
+desired location, rate, and other spawn conditions with In Control's normal conditions.
+
+A real replacement is useful when mob A is created under very specific circumstances that would be difficult to
+reproduce in `spawner.json`. In that case, let the original spawn reach a `spawn.json` rule, fire a custom event from
+that rule, and use `events.json` to create mob B near the attempted spawn. Use `deny_with_actions` so that the custom
+event still runs while mob A is denied.
+
+Be as specific as possible about which original spawns are replaced. In particular, use `spawntype` when other ways
+of creating mob A must continue to work.
+
+#### Changing what a spawner spawns
 
 In this example we change zombie spawners so that they spawn chickens instead:
 
@@ -995,6 +1009,50 @@ In `events.json` we add a rule for the custom event `chicken_instead` and we spa
     }
   }
 ```
+
+#### Replacing village villagers while allowing curing
+
+This example replaces villagers generated as part of a village with zombie villagers. It does not block every
+villager: the `structure` spawn type selects villagers created during structure generation. A villager created by
+curing a zombie villager has the `conversion` spawn type, so it does not match this rule and can still join the world.
+
+In `spawn.json`, deny only structure-spawned villagers and fire a custom event:
+
+```json
+  {
+    "mob": "minecraft:villager",
+    "spawntype": "structure",
+    "customevent": "zombie_villager_instead",
+    "when": "onjoin",
+    "result": "deny_with_actions"
+  }
+```
+
+In `events.json`, handle that event by spawning one zombie villager near the denied villager:
+
+```json
+  {
+    "on": "custom",
+    "parameters": {
+      "name": "zombie_villager_instead"
+    },
+    "conditions": {
+      "dimension": "minecraft:overworld"
+    },
+    "spawn": {
+      "mob": "minecraft:zombie_villager",
+      "mindistance": 0,
+      "maxdistance": 2,
+      "mincount": 1,
+      "maxcount": 1,
+      "attempts": 20,
+      "norestrictions": true
+    }
+  }
+```
+
+Do not replace this `spawntype` check with a blanket deny for `minecraft:villager`: that would also catch the
+`conversion` spawn used when curing succeeds and remove the cured villager.
 
 ### Spawning wither skeletons as soon as too many diamond ore blocks are mined
 
