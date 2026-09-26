@@ -251,7 +251,7 @@ const blockSchema = z
   })
   .or(z.string());
 
-export const generalSpawnKeywords = z.object({
+const generalSpawnKeywords = z.object({
   result: z.optional(z.enum(["default", "allow", "deny", "deny_with_actions"])),
   continue: z.optional(z.boolean()),
   phase: z.optional(stringOrStrings),

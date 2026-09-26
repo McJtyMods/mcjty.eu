@@ -16,7 +16,7 @@ The project is divided into two main parts:
 
 ## Setup
 
-Make sure you have the correct Node.js version installed (v24).
+Make sure you have the correct Node.js version installed (v26).
 
 This can be made easy by using [nvm](https://github.com/nvm-sh/nvm) (or on Windows [nvm-windows](https://github.com/coreybutler/nvm-windows)).
 
@@ -38,12 +38,12 @@ To install dependencies, run the following command in the root of the project:
 pnpm install
 ```
 
-## Formatting
+## Fix Issues
 
-To format all files in the project, run the following command in the root of the project:
+To fix all issues in the project, run the following command in the root of the project:
 
 ```shell
-pnpm format
+pnpm lint:fix
 ```
 
 ## Running Commands
