@@ -8,6 +8,12 @@ export function formatErrorLine(item: z.core.$ZodIssue) {
     return item.message;
   }
 
+  if (item.message === "Invalid input" && item.path.length < 3) {
+    const location =
+      item.path.length === 2 ? ` in ${String(item.path[1])}` : "";
+    return `Rule ${parseInt(item.path[0].toString(), 10) + 1}: Invalid value${location}. Check field names and value types against the reference.`;
+  }
+
   if (item.message === "Invalid input") {
     return (
       "Rule " +

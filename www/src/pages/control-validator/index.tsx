@@ -6,9 +6,12 @@ const ControlValidatorPage: React.FC = () => {
   const { siteConfig } = useDocusaurusContext();
 
   return (
-    <Layout title={siteConfig.title} description={siteConfig.tagline}>
-      <main className="p-4">
-        <div style={{ width: "100%" }}>
+    <Layout
+      title="In Control rule validator"
+      description={`Validate In Control rule files for Minecraft. ${siteConfig.tagline}`}
+    >
+      <main className="validator-page">
+        <div className="validator-intro">
           <h1>In Control rule validator</h1>
           <p>
             Choose the Minecraft version and filename, paste the complete file,

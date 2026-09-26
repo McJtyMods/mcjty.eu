@@ -28,61 +28,58 @@ const ControlValidator: React.FC = () => {
     }
   }, [version]);
 
-  return (
-    <div style={{ width: "100%" }}>
-      <div className="mx-auto flex w-2/3 flex-col gap-x-8 p-4 md:flex-row">
+  const hasValidators = Object.keys(DATA[version]).length > 0;
+
+  const controls = (
+    <>
+      <label className="validator-field">
+        <span className="validator-field__label">Minecraft</span>
         <select
           value={version}
           onChange={(e) => setVersion(e.target.value as MinecraftVersion)}
-          className="button button--primary button--lg"
+          className="validator-select"
         >
           {Object.keys(DATA).map((version) => (
-            <option
-              key={version}
-              value={version}
-              style={{ backgroundColor: "white", color: "black" }}
-            >
+            <option key={version} value={version}>
               {version}
             </option>
           ))}
         </select>
-        <div
-          className="tabs tabs--block w-full"
-          role="tablist"
-          aria-label="Rule file"
-        >
-          {Object.keys(DATA[version]).map((validator) => (
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === validator}
-              key={validator}
-              className={clsx(
-                "tabs__item",
-                tab === validator && "tabs__item--active",
-              )}
-              onClick={() => setTab(validator as ValidatorType)}
-            >
-              {validator}.json
-            </button>
-          ))}
-        </div>
+      </label>
+      <div className="validator-tabs" role="tablist" aria-label="Rule file">
+        {Object.keys(DATA[version]).map((validator) => (
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === validator}
+            key={validator}
+            className={clsx(
+              "validator-tab",
+              tab === validator && "validator-tab--active",
+            )}
+            onClick={() => setTab(validator as ValidatorType)}
+          >
+            {validator}.json
+          </button>
+        ))}
       </div>
-      <br />
-      <div className="mx-auto md:w-2/3">
-        <Validator
-          type={tab as ValidatorType}
-          version={version}
-          text={text[tab as ValidatorType]}
-          setText={(text) => {
-            setText((prev) => ({ ...prev, [tab as ValidatorType]: text }));
-          }}
-        />
-        {Object.keys(DATA[version]).length === 0 && (
-          <p>No validators for this version!</p>
-        )}
-      </div>
-    </div>
+    </>
+  );
+
+  if (!hasValidators) {
+    return <p>No validators for this version!</p>;
+  }
+
+  return (
+    <Validator
+      controls={controls}
+      type={tab as ValidatorType}
+      version={version}
+      text={text[tab as ValidatorType]}
+      setText={(text) => {
+        setText((prev) => ({ ...prev, [tab as ValidatorType]: text }));
+      }}
+    />
   );
 };
 
