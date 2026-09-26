@@ -7,12 +7,7 @@ import {
   spawnSchema1_20,
 } from "./schemas";
 
-export const MINECRAFT_VERSIONS = [
-  "1.16.5",
-  "1.18.2",
-  "1.19.2",
-  "1.20.1",
-] as const;
+const MINECRAFT_VERSIONS = ["1.16.5", "1.18.2", "1.19.2", "1.20.1"] as const;
 export type MinecraftVersion = (typeof MINECRAFT_VERSIONS)[number];
 
 export const VALIDATOR_TYPES = ["spawn", "spawner", "phases"] as const;

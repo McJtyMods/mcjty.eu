@@ -1,9 +1,15 @@
-import { type ChangeEvent, type FormEvent, useState } from "react";
+import {
+  type ChangeEvent,
+  type FormEvent,
+  type ReactNode,
+  useState,
+} from "react";
 import { DATA, type MinecraftVersion, type ValidatorType } from "./data";
 import JSONParser from "./jsonParser";
 import { formatErrorLine } from "./utils";
 
 type Props = {
+  controls: ReactNode;
   type: ValidatorType;
   version: MinecraftVersion;
   text: string;
@@ -93,52 +99,91 @@ const Validator: React.FC<Props> = (props) => {
     setValidating(false);
   };
 
+  const warningCount = zodErrors.filter(
+    (error) => error.color === "orange",
+  ).length;
+  const errorCount = zodErrors.length - warningCount;
+
+  let status: { label: string; tone: string } | null = null;
+  if (parseError) {
+    status = { label: "Invalid JSON", tone: "danger" };
+  } else if (zodErrors.length > 0) {
+    status = {
+      label: `${zodErrors.length} issue${zodErrors.length === 1 ? "" : "s"}`,
+      tone: errorCount > 0 ? "danger" : "warning",
+    };
+  } else if (success) {
+    status = { label: "Valid", tone: "success" };
+  }
+
   return (
-    <form
-      onSubmit={handleValidation}
-      className="flex h-full w-full flex-col justify-center gap-x-4 gap-y-4 md:flex-row"
-    >
-      {/* TODO: add syntax highlighting */}
-      <div className="w-full">
+    <form onSubmit={handleValidation} className="validator-card">
+      <div className="validator-toolbar">
+        <div className="validator-toolbar__controls">{props.controls}</div>
+        <button
+          type="submit"
+          className="button button--primary validator-submit"
+          disabled={validating}
+        >
+          {validating ? "Validating..." : "Validate"}
+        </button>
+      </div>
+      <div className="validator-body">
+        {/* TODO: add syntax highlighting */}
         <textarea
           value={props.text}
           onChange={handleTextChange}
           placeholder={`Paste ${props.type}.json for Minecraft ${props.version} here...`}
           required
-          className="h-[400px] w-full rounded p-2 font-mono"
+          aria-label={`${props.type}.json contents`}
+          className="validator-editor"
+          spellCheck={false}
         />
-      </div>
-      <div className="flex h-full w-full flex-col justify-center">
-        <button
-          type="submit"
-          className="button button--primary button--lg"
-          disabled={validating}
-        >
-          {validating ? "Validating..." : "Validate"}
-        </button>
-        <br />
-        {parseError && (
-          <pre className="w-full whitespace-pre-wrap">
-            <span style={{ color: "red" }}>{parseError}</span>
-          </pre>
-        )}
-        {zodErrors.length > 0 && (
-          <pre className="w-full whitespace-pre-wrap">
-            {zodErrors.map((error) => (
-              <span key={error.key} style={{ color: error.color }}>
-                {error.message}
-                {"\n"}
+        <section className="validator-results" aria-live="polite">
+          <header className="validator-results__header">
+            <h2 className="validator-results__title">Results</h2>
+            {status && (
+              <span
+                className={`validator-status validator-status--${status.tone}`}
+              >
+                {status.label}
               </span>
-            ))}
-          </pre>
-        )}
-        {success && (
-          <pre className="w-full whitespace-pre-wrap">
-            <span style={{ color: "green" }}>
-              Valid JSON using the settings known to this validator.
-            </span>
-          </pre>
-        )}
+            )}
+          </header>
+          {parseError && (
+            <div className="validator-issue validator-issue--error">
+              {parseError}
+            </div>
+          )}
+          {zodErrors.length > 0 && (
+            <ul className="validator-issues">
+              {zodErrors.map((error) => (
+                <li
+                  key={error.key}
+                  className={
+                    error.color === "orange"
+                      ? "validator-issue validator-issue--warning"
+                      : "validator-issue validator-issue--error"
+                  }
+                >
+                  {error.message}
+                </li>
+              ))}
+            </ul>
+          )}
+          {success && (
+            <p className="validator-results__empty">
+              Valid JSON using the settings known to this validator. The editor
+              now shows your file reformatted.
+            </p>
+          )}
+          {!status && (
+            <p className="validator-results__empty">
+              Paste your file and select Validate. Errors and warnings are
+              listed here, and the editor reformats your file when it parses.
+            </p>
+          )}
+        </section>
       </div>
     </form>
   );

@@ -7,18 +7,20 @@
   "author": "tomheaton",
   "scripts": {
     "clean:all": "pnpm -r clean && rm -rf node_modules",
-    "format": "biome format --write",
     "lint": "biome check",
-    "lint:ci": "biome ci",
+    "lint:ci": "biome ci --reporter=github",
+    "lint:errors": "biome check --diagnostic-level=error",
     "lint:fix": "biome check --fix --unsafe",
+    "unused": "knip --cache",
     "www": "pnpm --filter @mcjty-website/www"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.10"
+    "@biomejs/biome": "^2.5.14",
+    "knip": "^6.38.0"
   },
   "packageManager": "pnpm@10.33.0",
   "engines": {
-    "node": ">= 24"
+    "node": ">= 26"
   },
   "engineStrict": true
 }

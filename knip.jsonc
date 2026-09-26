@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/knip/schema-jsonc.json",
+  "workspaces": {
+    ".": {},
+    "www": {
+      // Swizzled theme components are loaded by Docusaurus, not imported.
+      "entry": ["src/theme/**/*.{ts,tsx}", "scripts/*.mjs"],
+      "project": ["**/*.{js,mjs,ts,tsx,css,mdx}"]
+    },
+    "redirector": {
+      // Cloudflare Pages Functions are routed by file path.
+      "entry": ["functions/**/*.{js,ts}"],
+      "project": ["functions/**/*.{js,ts}"]
+    }
+  }
+}
