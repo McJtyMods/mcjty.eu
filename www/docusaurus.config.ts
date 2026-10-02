@@ -146,6 +146,42 @@ export default {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: siteDirectoryUrl,
+          sidebarItemsGenerator: async ({
+            defaultSidebarItemsGenerator,
+            ...args
+          }) => {
+            const items = await defaultSidebarItemsGenerator(args);
+            // Mod docs have their own sidebar, so keep them out of Tutorials.
+            if (args.item.dirName === ".") {
+              return items.filter(
+                (item) =>
+                  !(
+                    item.type === "category" &&
+                    item.link?.type === "doc" &&
+                    item.link.id === "mods/mods"
+                  ),
+              );
+            }
+            // List mods alphabetically, with the overview page first.
+            if (args.item.dirName === "mods") {
+              const labelOf = (item: (typeof items)[number]) => {
+                if (item.type === "category") return item.label;
+                if (item.type === "doc") {
+                  const doc = args.docs.find((d) => d.id === item.id);
+                  return item.label ?? doc?.title ?? item.id;
+                }
+                return "";
+              };
+              const isOverview = (item: (typeof items)[number]) =>
+                item.type === "doc" && item.id === "mods/mods";
+              return [...items].sort(
+                (a, b) =>
+                  Number(isOverview(b)) - Number(isOverview(a)) ||
+                  labelOf(a).localeCompare(labelOf(b)),
+              );
+            }
+            return items;
+          },
         },
         blog: false,
         // blog: {

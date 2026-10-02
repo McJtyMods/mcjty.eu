@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-title: In Control documentation
+title: In Control
 ---
 
 # In Control documentation
