@@ -16,12 +16,65 @@ Begin with [Getting started](./control-mods-20-getting-started.md). It includes 
 | If you need… | Go to… |
 |---|---|
 | A first working configuration | [Getting started](./control-mods-20-getting-started.md) |
+| Answers to frequently asked questions | [Common Questions (FAQ)](#common-questions-faq) |
 | A copyable solution for a common goal | [Common recipes](./control-mods-20-recipes.md) |
 | An explanation of rule order, results, and spawn timing | [How rules work](./control-mods-20-concepts.md) |
 | Help with a rule that does nothing | [Troubleshooting](./control-mods-20-troubleshooting.md) |
 | More complex multi-file examples | [Full examples library](./control-mods-20-examples.md) |
 | Every condition and compatible file | [Condition table](./control-mods-20-table.md) |
 | A syntax check | [Control Validator](/control-validator) |
+
+## Common Questions (FAQ)
+
+These answers apply to Minecraft 1.20.1 and newer. Follow the links for detailed explanations and complete configurations.
+
+### How can I add spawns using `spawn.json`?
+
+Use `spawner.json` to create extra spawn attempts. `spawn.json` filters or modifies attempts that are already happening; it cannot add them by itself. See [how the two files work together](./control-mods-20-concepts.md#spawnjson-and-spawnerjson-solve-different-problems).
+
+### Why does my `spawn.json` allow rule do nothing?
+
+An `allow` result can bypass restrictions on an existing attempt, but it does not make Minecraft try to spawn that mob. To add a mob to a biome or increase its numbers, start with `spawner.json`. See [the explanation of spawn attempts](./control-mods-20-concepts.md#spawnjson-and-spawnerjson-solve-different-problems) and [what the different results mean](./control-mods-20-concepts.md#results).
+
+### Why can't I control mobs from a particular mod?
+
+Some modded mobs do not trigger the usual spawn-position checks. Try `"when": "onjoin"` in `spawn.json` to check them when they enter the world. See [the spawn lifecycle](./control-mods-20-concepts.md#the-spawn-lifecycle) for the available stages and their effects.
+
+### Why do my allow and deny rules ignore my exception?
+
+For most rule files, the first matching rule wins. Put specific exceptions before broad denial rules, and remember that `spawn.json` checks rule order separately for each `when` stage. See [rule order](./control-mods-20-concepts.md#rules-are-checked-from-top-to-bottom) and the [recipe for permitting selected hostile mobs](./control-mods-20-recipes.md#permit-only-selected-hostile-mobs).
+
+### Why don't my rules affect spawn eggs or `/summon`?
+
+The default `position` stage does not cover every way a mob enters the world. Use `"when": "onjoin"` when eggs and commands must also be affected. See [the recipe for disabling mobs](./control-mods-20-recipes.md#disable-one-or-more-mobs), or [the recipe for keeping eggs and commands working](./control-mods-20-recipes.md#disable-natural-hostile-spawning-but-keep-spawn-eggs-and-commands) if that is your goal.
+
+### Why did my `spawn.json` rules stop working after I added `norestrictions`?
+
+On 1.20.1, `norestrictions` in `spawner.json` also bypasses the `position` stage of `spawn.json`. Remove it, or use `"when": "onjoin"` for the related spawn rules. See [how `norestrictions` interacts with spawn rules](./control-mods-20-concepts.md#norestrictions-is-powerful).
+
+### How can I get zombies to spawn more often?
+
+Add a `spawner.json` rule with suitable distance, height, and count limits. Start with the [more zombies recipe](./control-mods-20-recipes.md#make-zombies-spawn-more-often). For a complete setup involving several files, see the [zombie apocalypse scenario](./control-mods-20-examples.md#scenario-zombie-apocalypse-world).
+
+### How can I get zombies to spawn during the day?
+
+Normal zombie spawning is restricted by light, so zombies can already spawn in dark places during the day. To spawn them in daylight, see the [example that bypasses light restrictions](./control-mods-20-examples.md#getting-zombies-to-spawn-more). Spawning in sunlight and surviving it are separate concerns; the [zombie apocalypse scenario](./control-mods-20-examples.md#scenario-zombie-apocalypse-world) also shows how to equip zombies with helmets.
+
+### Why doesn't changing Minecraft's time update my day rules?
+
+In Control has its own day counter. Use `/incontrol days` to inspect or change it; changing vanilla time does not directly set that counter. See [how internal days are counted](./control-mods-20-concepts.md#internal-days-are-not-the-minecraft-day-number).
+
+### Why do my `onjoin` actions repeat after a reload or dimension change?
+
+`onjoin` also runs when saved mobs load or mobs transfer between dimensions. Add `"firstjoin": true` alongside `"when": "onjoin"` to limit the rule to a new mob's first join. See [first-join tracking](#first-joins-firstjoin) and the [recipe for blocking new mobs while keeping existing ones](./control-mods-20-recipes.md#block-new-mobs-while-keeping-existing-ones).
+
+### Why does my `spawner.json` rule spawn nothing?
+
+Check the required `dimension` inside `conditions`, the mob identifier, spawn distances and heights, count limits, and active phases. Follow the [spawner troubleshooting checklist](./control-mods-20-troubleshooting.md#my-spawnerjson-rule-does-nothing) to check these one at a time.
+
+### How do I find out why a rule is not working?
+
+Start with the [basic troubleshooting checklist](./control-mods-20-troubleshooting.md#the-basic-checklist): validate the complete file, reload it, read the log, and reduce it to one small rule. If the file loads but behaves unexpectedly, use the [diagnostic commands](./control-mods-20-troubleshooting.md#useful-diagnostic-commands).
 
 ## Version notes
 
@@ -95,6 +148,22 @@ Rules in this file are essentially split into four different categories:
 * `despawn`: this is called whenever a mob is about to despawn. You can use this to prevent despawning
 
 The category of a spawn rule is set with the new `when` keyword. This keyword is optional and defaults to `position`.
+
+#### First joins: `firstjoin`
+
+In Minecraft 1.20.1 and newer, the optional boolean `firstjoin` condition can be used in `spawn.json` together with `"when": "onjoin"`:
+
+- `"firstjoin": true` matches only a new mob's first join, including mobs created by spawn eggs or commands.
+- `"firstjoin": false` matches subsequent joins, such as loading a saved mob from disk or transferring it to another dimension.
+- Omitting `firstjoin` keeps the usual behavior: the rule can match every join.
+
+Using `firstjoin` with any other `when` value, or without an explicit `"when": "onjoin"`, is a rule-loading error.
+
+Join tracking is saved with the mob and survives chunk/world reloads and dimension transfers. Existing mobs loaded from disk do not count as new, even if they have never been tracked before. This condition describes the mob's first join, not the first time a particular rule matches: a mob is marked as having joined even when no rule matches. All rules evaluated during the same join see the same first-join status, including rules reached through `"continue": true`.
+
+Use `firstjoin: true` to keep an `onjoin` action from repeating on reloads or dimension transfers. See the [recipe for blocking only new mobs](./control-mods-20-recipes.md#block-new-mobs-while-keeping-existing-ones) for a complete example.
+
+#### Results and rule order
 
 Some additional notes about spawn.json. Each rule has a result which can be `allow`, `default`, `deny`, or `deny_with_actions`.
 In case of `deny` the spawn will simply be canceled. The difference between `allow` and `default` is that with `default`

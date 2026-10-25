@@ -61,6 +61,25 @@ Specific exceptions must come before the broad denial.
 
 ## Intermediate recipes
 
+### Block new mobs while keeping existing ones
+
+Use `"firstjoin": true` with `"when": "onjoin"` to stop new creepers, including those created by spawn eggs and commands, while letting existing creepers reload or transfer between dimensions.
+
+```json title="spawn.json"
+[
+  {
+    "mob": "minecraft:creeper",
+    "when": "onjoin",
+    "firstjoin": true,
+    "result": "deny"
+  }
+]
+```
+
+Test: create a creeper before enabling the rule, then run `/incontrol reload`. A creeper spawn egg should now fail, while the existing creeper should remain after saving and reopening the world.
+
+Changing `firstjoin` to `false` targets returning mobs instead. Removing it makes the rule apply on every join, including reloads and dimension transfers. See [first-join tracking](./control-mods-20.md#first-joins-firstjoin) for details.
+
 ### Make zombies spawn more often
 
 This adds extra attempts; it does not replace vanilla zombie spawning. The count and distance limits are important.

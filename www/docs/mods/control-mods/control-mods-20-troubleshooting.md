@@ -47,6 +47,14 @@ The default `spawn.json` stage is `position`, which is aimed at spawn-position c
 
 Be aware that `onjoin` is broad: it can also run when an entity enters a dimension.
 
+## “My `onjoin` actions repeat after reloading or changing dimensions”
+
+Add `"firstjoin": true` to the rule to limit it to a new mob's first join. Keep `"when": "onjoin"` explicitly set; `firstjoin` is invalid with any other stage or with the default `position` stage.
+
+First-join tracking survives chunk/world reloads and dimension transfers. Existing mobs loaded from disk are not considered new. If you want a rule to match only returning mobs, use `"firstjoin": false`; omit the condition to match all joins.
+
+A first join is recorded even if none of your rules match. When testing a `firstjoin: true` rule after `/incontrol reload`, create a new mob rather than reusing one already in the world. See [first-join tracking](./control-mods-20.md#first-joins-firstjoin).
+
 ## “`spawn.json` stopped working after I added `norestrictions`”
 
 On 1.20.1, `norestrictions` in `spawner.json` bypasses the `position` stage. Remove `norestrictions`, or use `"when": "onjoin"` for the related `spawn.json` rule.

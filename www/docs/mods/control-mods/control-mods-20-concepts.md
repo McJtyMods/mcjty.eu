@@ -91,11 +91,19 @@ is checked       the world       and stats finish
 | `when` value | Best used for | Important behavior |
 |---|---|---|
 | `position` | Ordinary natural-spawn restrictions | Default when `when` is omitted; does not cover every way an entity can enter the world |
-| `onjoin` | Strong allow/deny checks, spawn eggs, commands, and difficult modded mobs | Also runs when an entity enters a dimension; use conditions carefully |
+| `onjoin` | Strong allow/deny checks, spawn eggs, commands, and difficult modded mobs | Also runs on chunk/world reloads and dimension transfers; use `firstjoin` to distinguish new mobs from returning ones |
 | `finalize` | Health, damage, speed, equipment, NBT, and AI changes | Runs at the final spawn setup stage |
 | `despawn` | Preventing or allowing despawning | Not a spawn check |
 
 Rules are ordered separately within each lifecycle category. Matching an `onjoin` rule does not prevent a later `finalize` category from being evaluated unless the entity itself was denied.
+
+### Limit `onjoin` rules to new mobs
+
+Add `"firstjoin": true` alongside `"when": "onjoin"` to match only a new mob's first join. This includes spawn eggs and commands, but excludes saved mobs being loaded and mobs transferring between dimensions. The tracking survives chunk/world reloads and dimension transfers, so an action guarded this way will not repeat on those later joins.
+
+Use `"firstjoin": false` to match returning mobs instead. Leave the condition out to keep matching every join. `firstjoin` is only valid with an explicit `"when": "onjoin"`.
+
+This is the first join of the mob, not its first match against a rule. If the other conditions fail on that first join, the mob does not get another first join later. Rules reached through `"continue": true` share the same first-join status for that event. See the [technical reference](./control-mods-20.md#first-joins-firstjoin).
 
 ## Results
 

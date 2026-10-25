@@ -12,6 +12,7 @@ In Control uses rule files to control mob spawning, attributes, loot, experience
 For Minecraft 1.20.1, 1.21, and newer, start with one of these pages:
 
 * [Getting started](./control-mods-20-getting-started.md) — a first working rule, a file chooser, and the JSON basics
+* [Common Questions (FAQ)](./control-mods-20.md#common-questions-faq) — short answers to frequent questions, with links to explanations and examples
 * [Common recipes](./control-mods-20-recipes.md) — copyable configurations organized by goal
 * [Technical reference](./control-mods-20.md) — every system and advanced setting
 * [Troubleshooting](./control-mods-20-troubleshooting.md) — a diagnostic checklist and common failure modes
